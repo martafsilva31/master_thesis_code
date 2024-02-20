@@ -51,3 +51,32 @@ alices:
     n_processes:  8
     
 
+alice:
+
+# Augmentation with alices (good idea for the training and testing to be consistent)
+  training:
+    observables:  "kinematic_only"
+    n_hidden: [100,50,]
+    activation:  "relu"
+    training_samples_name: gaussian_prior_0_0.4 #flat_prior_m1.2_p1.2  #"gaussian_prior_0_0.4"
+    n_workers: 4
+    n_samples:  -1
+    n_epochs: 50
+    batch_size: 1024
+    nestimators: 5 #number of estimators for ALICES method NN ensemble
+
+sally:
+
+# Augmentation with alices (good idea for the training and testing to be consistent)
+  training:
+    observables:  "kinematic_only"
+    n_hidden: [100,50,]
+    activation:  "relu"
+    training_samples_name: gaussian_prior_0_0.4 #flat_prior_m1.2_p1.2  #"gaussian_prior_0_0.4"
+    n_workers: 4
+    n_samples:  -1
+    n_epochs: 50
+    batch_size: 1024
+    nestimators: 5 #number of estimators for ALICES method NN ensemble
+
+
