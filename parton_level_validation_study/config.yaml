@@ -1,0 +1,53 @@
+# Folder where to keep everything for MadMiner WH studies, on which we store Madgraph samples and all .h5 files (setup, analyzed events, ...)
+main_dir: /lstore/titan/martafsilva/master_thesis/parton_level_validation_study/parton_level_validation_output  
+
+# Folder where to keep all the plots 
+plot_dir: /lstore/titan/martafsilva/master_thesis/parton_level_validation_study/parton_level_validation_output/plots
+
+# Name of setup file (without the .h5)
+setup_file: setup 
+
+# If running pythia, the path for the Pythia card
+pythia_card: /cards/pythia8_card.dat
+
+# Path for MadGraph installation
+mg_dir: /cvmfs/sw.el7/gcc63/madgraph/3.3.1/b01/
+
+# Whether to use all observables or a limited number of them; choices = 'all', "pt_w_only", "pt_w_and_cos_delta_plus"]
+observable_set: all
+
+# .h5 sample name to augment/train
+sample_name: wh_signalOnly_SMonly_noSysts_lhe #choices ['wh_signalOnly_SMonly_noSysts_lhe','wh_withBackgrounds_SMonly_noSysts_lhe']
+
+alices:
+
+# Augmentation with alices (good idea for the training and testing to be consistent)
+  augmentation:
+    n_samples:  -1
+    n_thetas:  1000
+    priors: ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
+    prior_name:  gaussian_prior_0_0.4 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    n_processes:  8
+
+  training:
+    observables:  "kinematic_only"
+    n_hidden: [100,50,]
+    activation:  "relu"
+    training_samples_name: gaussian_prior_0_0.4 #flat_prior_m1.2_p1.2  #"gaussian_prior_0_0.4"
+    alpha: 0 
+    n_workers: 4
+    n_samples:  -1
+    n_epochs: 50
+    batch_size: 1024
+    nestimators: 5 #number of estimators for ALICES method NN ensemble
+
+  testing:
+    observables:  "kinematic_only"
+    n_samples:  1000
+    n_thetas:  1000
+    n_processes:  8
+    priors: ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.2] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
+    prior_name: gaussian_prior_0_0.4_1000_samples #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    n_processes:  8
+    
+
