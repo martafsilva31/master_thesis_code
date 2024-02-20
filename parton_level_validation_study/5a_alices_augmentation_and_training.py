@@ -83,7 +83,7 @@ def alices_training(config):
   
   """ Trains an ensemble of NNs for the ALICES method """
       
-  model_name = f"hidden_{config['alices']['training']['n_hidden']}_{config['alices']['training']['activation']}_alpha_{config['alices']['training']['alpha']}_epochs_{config['alices']['training']['n_epochs']}_bs_{config['alices']['training']['batch_size']}"
+  model_name = f"alices_hidden_{config['alices']['training']['n_hidden']}_{config['alices']['training']['activation']}_alpha_{config['alices']['training']['alpha']}_epochs_{config['alices']['training']['n_epochs']}_bs_{config['alices']['training']['batch_size']}"
 
   # access to the .h5 file with MadMiner settings
   madminer_settings=load_madminer_settings(f"{config['main_dir']}/{config['observable_set']}/{config['sample_name']}.h5", include_nuisance_benchmarks=False)
@@ -109,7 +109,7 @@ def alices_training(config):
 
   # Choose which features to train on 
   # If 'all', we use all of them (None), otherwise we select the correct indices
-  if config["observable_set"] == "parton_level_validation": #'all':
+  if config["observable_set"] == "all":
     if config["alices"]["training"]["observables"] == 'kinematic_only':
        my_features = None
 
@@ -135,9 +135,9 @@ def alices_training(config):
   # saving ensemble state dict and training and validation losses
   os.makedirs(f"{config['main_dir']}/{config['observable_set']}/models/{config['alices']['training']['training_samples_name']}/{config['alices']['training']['observables']}/{model_name}", exist_ok=True)
   ensemble.save(f"{config['main_dir']}/{config['observable_set']}/models/{config['alices']['training']['training_samples_name']}/{config['alices']['training']['observables']}/{model_name}/alices_ensemble_{config['sample_name']}")
-  np.savez(f"{config['main_dir']}/{config['observable_set']}/models/{config['alices']['training']['training_samples_name']}/{config['alices']['training']['observables']}/{model_name}/losses_{config['sample_name']}",result)
+  np.savez(f"{config['main_dir']}/{config['observable_set']}/models/{config['alices']['training']['training_samples_name']}/{config['alices']['training']['observables']}/{model_name}/alices_losses_{config['sample_name']}",result)
 
-  results = np.load(f"{config['main_dir']}/{config['observable_set']}/models/{config['alices']['training']['training_samples_name']}/{config['alices']['training']['observables']}/{model_name}/losses_{config['sample_name']}.npz")
+  results = np.load(f"{config['main_dir']}/{config['observable_set']}/models/{config['alices']['training']['training_samples_name']}/{config['alices']['training']['observables']}/{model_name}/alices_losses_{config['sample_name']}.npz")
 
   fig=plt.figure()
 
