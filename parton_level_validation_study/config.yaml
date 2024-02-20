@@ -64,7 +64,16 @@ alice:
     n_epochs: 50
     batch_size: 1024
     nestimators: 5 #number of estimators for ALICES method NN ensemble
-
+  
+  testing:
+    observables:  "kinematic_only"
+    n_samples:  1000
+    n_thetas:  1000
+    n_processes:  8
+    priors: ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.2] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
+    prior_name: gaussian_prior_0_0.4_1000_samples #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    n_processes:  8
+    
 sally:
 
 # Augmentation with alices (good idea for the training and testing to be consistent)
@@ -79,4 +88,11 @@ sally:
     batch_size: 1024
     nestimators: 5 #number of estimators for ALICES method NN ensemble
 
-
+  testing:
+    observables:  "kinematic_only"
+    n_samples:  1000
+    n_thetas:  1000
+    n_processes:  8
+    priors: ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.2] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
+    prior_name: gaussian_prior_0_0.4_1000_samples #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    n_processes:  8

@@ -26,7 +26,7 @@ for key in logging.Logger.manager.loggerDict:
   if "madminer" not in key:
     logging.getLogger(key).setLevel(logging.WARNING)
 
-
+# Choose the GPU
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "0")
 #os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "1")
@@ -75,7 +75,7 @@ def validation_plot(config,args):
     
     if args.model == 'alices':
         
-        model_name = f"hidden_{config['alices']['training']['n_hidden']}_{config['alices']['training']['activation']}_alpha_{config['alices']['training']['alpha']}_epochs_{config['alices']['training']['n_epochs']}_bs_{config['alices']['training']['batch_size']}"
+        model_name = f"alices_hidden_{config['alices']['training']['n_hidden']}_{config['alices']['training']['activation']}_alpha_{config['alices']['training']['alpha']}_epochs_{config['alices']['training']['n_epochs']}_bs_{config['alices']['training']['batch_size']}"
 
         model_path = f"{config['main_dir']}/{config['observable_set']}/models/{config['alices']['training']['training_samples_name']}/{config['alices']['training']['observables']}/{model_name}/alices_ensemble_{config['sample_name']}"
 
@@ -104,66 +104,67 @@ def validation_plot(config,args):
         plt.tight_layout()
       
         return fig 
-        # fig_score = plt.figure()
-        # plt.scatter(-2*t_hat,-2*joint_score)
-        # min_val = min(-2 * t_hat.min(), -2 * joint_score.min())
-        # max_val = max(-2 * t_hat.max(), -2 * joint_score.max())
-        # plt.plot([min_val, max_val], [min_val, max_val], linestyle="--", color="k")
-        # plt.xlabel(r'True score t(x)')
-        # plt.ylabel(r'Estimated score $\hat{t}(x)$ (ALICES)')
-        # plt.tight_layout()
-        
-        return fig #, fig_score
     
-    # STILL TO  BE IMPLEMENTED
-    # if args.model== 'alice':
-    #     alice = ParameterizedRatioEstimator()
-    #     alice.load(model_path)
-        
-    #     joint_likelihood_ratio = np.load(f"{args.main_dir}/testing_samples/alices/r_xz_test_ratio_{channel}_{args.sample_type}.npy")
-    #     thetas = np.load(f"{args.main_dir}/testing_samples/alices/theta0_test_ratio_{channel}_{args.sample_type}.npy")
-    #     x = np.load(f"{args.main_dir}/testing_samples/alices/x_test_ratio_{channel}_{args.sample_type}.npy")
 
-    #     joint_likelihood_ratio_log = np.log(joint_likelihood_ratio)
-    #     log_r_hat, _ = alice.evaluate_log_likelihood_ratio(x=x, theta = thetas, test_all_combinations=False)
+    if args.model== 'alice':
         
-    #     fig=plt.figure()
+        model_name = f"alice_hidden_{config['alice']['training']['n_hidden']}_{config['alice']['training']['activation']}_epochs_{config['alice']['training']['n_epochs']}_bs_{config['alice']['training']['batch_size']}"
+
+        model_path = f"{config['main_dir']}/{config['observable_set']}/models/{config['alice']['training']['training_samples_name']}/{config['alice']['training']['observables']}/{model_name}/alice_ensemble_{config['sample_name']}"
+
+
+        alice = Ensemble()
+        alice.load(model_path)
         
-    #     plt.scatter(-2*log_r_hat,-2*joint_likelihood_ratio_log)
-    #     min_val = min(-2 * log_r_hat.min(), -2 * joint_likelihood_ratio_log.min())
-    #     max_val = max(-2 * log_r_hat.max(), -2 * joint_likelihood_ratio_log.max())
-    #     plt.plot([min_val, max_val], [min_val, max_val], linestyle="--", color="k")
+        joint_likelihood_ratio = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/alices_{config['alice']['testing']['prior_name']}/r_xz_test_ratio_{config['sample_name']}.npy")
+        thetas = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/alices_{config['alice']['testing']['prior_name']}/theta0_test_ratio_{config['sample_name']}.npy")
+        x = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/alices_{config['alice']['testing']['prior_name']}/x_test_ratio_{config['sample_name']}.npy")
+
+        joint_likelihood_ratio_log = np.log(joint_likelihood_ratio)
+        log_r_hat, _ = alice.evaluate_log_likelihood_ratio(x=x, theta = thetas, test_all_combinations=False)
+        
+        fig=plt.figure()
+        
+        plt.scatter(-2*log_r_hat,-2*joint_likelihood_ratio_log)
+        min_val = min(-2 * log_r_hat.min(), -2 * joint_likelihood_ratio_log.min())
+        max_val = max(-2 * log_r_hat.max(), -2 * joint_likelihood_ratio_log.max())
+        plt.plot([min_val, max_val], [min_val, max_val], linestyle="--", color="k")
         
 
-    #     plt.xlabel(r'True log likelihood ratio log r(x)')
-    #     plt.ylabel(r'Estimated log likelihood ratio log $\hat{r}(x)$ (ALICE)')
-    #     plt.tight_layout()
+        plt.xlabel(r'True log likelihood ratio log r(x)')
+        plt.ylabel(r'Estimated log likelihood ratio log $\hat{r}(x)$ (ALICE)')
+        plt.tight_layout()
     
         
-    #     return fig
+        return fig
     
-    # if args.model== 'sally':
-        
-    #     sally = ScoreEstimator()
-    #     sally.load(model_path)
-        
-    #     joint_score = np.load(f"{args.main_dir}/testing_samples/alices/t_xz_test_ratio_{channel}_{args.sample_type}.npy")
-    #     thetas = np.load(f"{args.main_dir}/testing_samples/alices/theta0_test_ratio_{channel}_{args.sample_type}.npy")
-    #     x = np.load(f"{args.main_dir}/testing_samples/alices/x_test_ratio_{channel}_{args.sample_type}.npy")
+    if args.model== 'sally':
 
-    #     t_hat = sally.evaluate_score(x=x, theta = thetas)
+        model_name = f"sally_hidden_{config['sally']['training']['n_hidden']}_{config['sally']['training']['activation']}_epochs_{config['sally']['training']['n_epochs']}_bs_{config['sally']['training']['batch_size']}"
+
+        model_path = f"{config['main_dir']}/{config['observable_set']}/models/{config['sally']['training']['training_samples_name']}/{config['sally']['training']['observables']}/{model_name}/sally_ensemble_{config['sample_name']}"
+
+
+        sally = Ensemble()
+        sally.load(model_path)
+        
+        joint_score = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/alices_{config['sally']['testing']['prior_name']}/t_xz_test_ratio_{config['sample_name']}.npy")
+        thetas = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/alices_{config['sally']['testing']['prior_name']}/theta0_test_ratio_{config['sample_name']}.npy")
+        x = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/alices_{config['sally']['testing']['prior_name']}/x_test_ratio_{config['sample_name']}.npy")
+
+        t_hat = sally.evaluate_score(x=x, theta = thetas)
         
         
-    #     fig_score = plt.figure()
-    #     plt.scatter(-2*t_hat,-2*joint_score)
-    #     min_val = min(-2 * t_hat.min(), -2 * joint_score.min())
-    #     max_val = max(-2 * t_hat.max(), -2 * joint_score.max())
-    #     plt.plot([min_val, max_val], [min_val, max_val], linestyle="--", color="k")
-    #     plt.xlabel(r'True score t(x)')
-    #     plt.ylabel(r'Estimated score $\hat{t}(x)$ (SALLY)')
-    #     plt.tight_layout()
+        fig_score = plt.figure()
+        plt.scatter(-2*t_hat,-2*joint_score)
+        min_val = min(-2 * t_hat.min(), -2 * joint_score.min())
+        max_val = max(-2 * t_hat.max(), -2 * joint_score.max())
+        plt.plot([min_val, max_val], [min_val, max_val], linestyle="--", color="k")
+        plt.xlabel(r'True score t(x)')
+        plt.ylabel(r'Estimated score $\hat{t}(x)$ (SALLY)')
+        plt.tight_layout()
         
-    #     return fig_score
+        return fig_score
         
 
 if __name__ == '__main__':
@@ -191,37 +192,34 @@ if __name__ == '__main__':
         augment_test(config)
 
     if args.validation:
-        validation_llr= validation_plot(config,args)#validation_llr, validation_score = validation_plot(config,args)
 
-        model_name = f"hidden_{config['alices']['training']['n_hidden']}_{config['alices']['training']['activation']}_alpha_{config['alices']['training']['alpha']}_epochs_{config['alices']['training']['n_epochs']}_bs_{config['alices']['training']['batch_size']}"
+        if args.model == 'alices':
+           
+        validation_llr = validation_plot(config,args)
+
+        model_name = f"alices_hidden_{config['alices']['training']['n_hidden']}_{config['alices']['training']['activation']}_alpha_{config['alices']['training']['alpha']}_epochs_{config['alices']['training']['n_epochs']}_bs_{config['alices']['training']['batch_size']}"
 
         os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alices']['testing']['prior_name']}/{config['alices']['testing']['observables']}/{model_name}/", exist_ok=True)
 
         validation_llr.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alices']['testing']['prior_name']}/{config['alices']['testing']['observables']}/{model_name}/{args.model}_validation_llr_{config['sample_name']}.pdf")
         
-        # validation_score.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alices']['testing']['prior_name']}/{config['alices']['testing']['observables']}/{model_name}/{args.model}_validation_score_{config['sample_name']}.pdf")
-
-    # for channel in args.channel:
-
-    #     if args.model == 'alices':
-    #         {config["main_dir"]}/{config["observable_set"]}/{config["sample_name"]}.h5'
+    if args.model == 'alice':
            
-    #         validation_llr, validation_score = validation_plot(f"{args.main_dir}/models/{args.observables}/{args.model_architecture}/{args.model}_{channel}_{args.sample_type}", args, channel)
+        validation_llr = validation_plot(config,args)
+
+        model_name = f"alice_hidden_{config['alice']['training']['n_hidden']}_{config['alice']['training']['activation']}_epochs_{config['alice']['training']['n_epochs']}_bs_{config['alice']['training']['batch_size']}"
+
+        os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alice']['testing']['prior_name']}/{config['alice']['testing']['observables']}/{model_name}/", exist_ok=True)
+
+        validation_llr.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alice']['testing']['prior_name']}/{config['alice']['testing']['observables']}/{model_name}/{args.model}_validation_llr_{config['sample_name']}.pdf")
         
-                    
-    #         validation_llr.savefig(f'{args.plot_dir}/{args.model}_validation_llr_alices_gaussian_prior_0_0.2_{channel}_{args.sample_type}_{args.observables}_{args.model_architecture}.pdf')
-                    
-    #         validation_score.savefig(f'{args.plot_dir}/{args.model}_validation_score_alices_gaussian_prior_0_0.2_{channel}_{args.sample_type}_{args.observables}_{args.model_architecture}.pdf')
+    if args.model == 'sally':
+           
+        validation_score = validation_plot(config,args)
 
-        # if args.model == 'alice':
-           
-        #     validation_llr = validation_plot(f"{args.main_dir}/models/{args.observables}/{args.model_architecture}/{args.model}_{channel}_{args.sample_type}", args, channel)
-                    
-        #     validation_llr.savefig(f'{args.plot_dir}/{args.model}_validation_llr_{channel}_{args.sample_type}_{args.observables}_{args.model_architecture}.pdf')
-                    
-        # if args.model == 'sally':
-           
-        #     validation_score = validation_plot(f"{args.main_dir}/models/{args.observables}/{args.model_architecture}/{args.model}_{channel}_{args.sample_type}", args, channel)
+        model_name = f"sally_hidden_{config['sally']['training']['n_hidden']}_{config['sally']['training']['activation']}_epochs_{config['sally']['training']['n_epochs']}_bs_{config['sally']['training']['batch_size']}"
+
+        os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/", exist_ok=True)
+
+        validation_score.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/{args.model}_validation_score_{config['sample_name']}.pdf")
         
-                     
-        #     validation_score.savefig(f'{args.plot_dir}/{args.model}_validation_score_{channel}_{args.sample_type}_{args.observables}_{args.model_architecture}.pdf')
