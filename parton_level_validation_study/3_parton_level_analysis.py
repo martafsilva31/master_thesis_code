@@ -67,7 +67,41 @@ def choose_observables(observable_set):
             'l[0].deltaphi(j[0])', 'l[0].deltaphi(j[1])', 'v[0].deltaphi(j[0])', 'v[0].deltaphi(j[1])',
             'j[0].deltaR(j[1])', 'l[0].deltaR(v[0])', 'l[0].deltaR(j[0])', 'l[0].deltaR(j[1])', 'v[0].deltaR(j[0])', 'v[0].deltaR(j[1])',
         ]
-        
+
+    if observable_set == 'met':
+        observable_names = [
+            'b1_px', 'b1_py', 'b1_pz', 'b1_e',
+            'b2_px', 'b2_py', 'b2_pz', 'b2_e',
+            'l_px', 'l_py', 'l_pz', 'l_e',
+            'v_px', 'v_py',
+            'pt_b1', 'pt_b2', 'pt_l', 'met', 'pt_w', 'pt_h',
+            'eta_b1', 'eta_b2', 'eta_l', 'eta_h',
+            'phi_b1', 'phi_b2', 'phi_l', 'phi_v', 'phi_w', 'phi_h',
+            'theta_b1', 'theta_b2', 'theta_l', 'theta_h',
+            'dphi_bb', 'dphi_lv', 'dphi_wh',
+            'm_bb', 'mt_lv',
+            'q_l',
+            'dphi_lb1', 'dphi_lb2', 'dphi_vb1', 'dphi_vb2',
+            'dR_bb', 'dR_lb1', 'dR_lb2'
+        ]
+
+        list_of_observables = [
+            'j[0].px', 'j[0].py', 'j[0].pz', 'j[0].e',
+            'j[1].px', 'j[1].py', 'j[1].pz', 'j[1].e',
+            'l[0].px', 'l[0].py', 'l[0].pz', 'l[0].e',
+            'met.px', 'met.py',   
+            'j[0].pt', 'j[1].pt', 'l[0].pt', 'met.pt', '(l[0] + met).pt', '(j[0] + j[1]).pt',
+            'j[0].eta', 'j[1].eta', 'l[0].eta', '(j[0] + j[1]).eta',
+            'j[0].phi', 'j[1].phi', 'l[0].phi', 'met.phi', '(l[0] + met).phi', '(j[0] + j[1]).phi',
+            'j[0].theta', 'j[1].theta', 'l[0].theta', '(j[0] + j[1]).theta',
+            'j[0].deltaphi(j[1])', 'l[0].deltaphi(met)', '(l[0] + met).deltaphi(j[0] + j[1])',
+            '(j[0] + j[1]).m', '(l[0] + met).mt',
+            'l[0].charge',
+            'l[0].deltaphi(j[0])', 'l[0].deltaphi(j[1])', 'met.deltaphi(j[0])', 'met.deltaphi(j[1])',
+            'j[0].deltaR(j[1])', 'l[0].deltaR(j[0])', 'l[0].deltaR(j[1])'
+        ]
+
+
     elif observable_set == 'pt_w_only':   
 
         observable_names = ['pt_w']

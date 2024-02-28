@@ -113,6 +113,10 @@ def alices_training(config):
     if config["alices"]["training"]["observables"] == 'kinematic_only':
        my_features = None
 
+  if config["observable_set"] == "met":
+    if config["alices"]["training"]["observables"] == 'kinematic_only':
+       my_features = None
+
   # Other options still to be implemented
   
   #Create a list of ParameterizedRatioEstimator objects to add to the ensemble
