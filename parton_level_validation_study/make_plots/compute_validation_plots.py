@@ -154,12 +154,12 @@ def validation_plot(config,args):
 
         t_hat = sally.evaluate_score(x=x, theta = thetas)
         
-        
         fig_score = plt.figure()
-        plt.scatter(-2*t_hat,-2*joint_score)
-        min_val = min(-2 * t_hat.min(), -2 * joint_score.min())
-        max_val = max(-2 * t_hat.max(), -2 * joint_score.max())
+        plt.scatter(-2*t_hat[0],-2*joint_score) # Had to put a [0] because for the ensemble the output is a tuple (?)
+        min_val = min(-2 * t_hat[0].min(), -2 * joint_score.min())
+        max_val = max(-2 * t_hat[0].max(), -2 * joint_score.max())
         plt.plot([min_val, max_val], [min_val, max_val], linestyle="--", color="k")
+        #plt.ylim(-10,10)
         plt.xlabel(r'True score t(x)')
         plt.ylabel(r'Estimated score $\hat{t}(x)$ (SALLY)')
         plt.tight_layout()
@@ -194,32 +194,32 @@ if __name__ == '__main__':
     if args.validation:
 
         if args.model == 'alices':
-           
-        validation_llr = validation_plot(config,args)
+            validation_llr = validation_plot(config,args)
 
-        model_name = f"alices_hidden_{config['alices']['training']['n_hidden']}_{config['alices']['training']['activation']}_alpha_{config['alices']['training']['alpha']}_epochs_{config['alices']['training']['n_epochs']}_bs_{config['alices']['training']['batch_size']}"
+            model_name = f"alices_hidden_{config['alices']['training']['n_hidden']}_{config['alices']['training']['activation']}_alpha_{config['alices']['training']['alpha']}_epochs_{config['alices']['training']['n_epochs']}_bs_{config['alices']['training']['batch_size']}"
 
-        os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alices']['testing']['prior_name']}/{config['alices']['testing']['observables']}/{model_name}/", exist_ok=True)
+            os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alices']['testing']['prior_name']}/{config['alices']['testing']['observables']}/{model_name}/", exist_ok=True)
 
-        validation_llr.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alices']['testing']['prior_name']}/{config['alices']['testing']['observables']}/{model_name}/{args.model}_validation_llr_{config['sample_name']}.pdf")
-        
-    if args.model == 'alice':
-           
-        validation_llr = validation_plot(config,args)
+            validation_llr.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alices']['testing']['prior_name']}/{config['alices']['testing']['observables']}/{model_name}/{args.model}_validation_llr_{config['sample_name']}.pdf")
+            
+        if args.model == 'alice':
+              
+            validation_llr = validation_plot(config,args)
 
-        model_name = f"alice_hidden_{config['alice']['training']['n_hidden']}_{config['alice']['training']['activation']}_epochs_{config['alice']['training']['n_epochs']}_bs_{config['alice']['training']['batch_size']}"
+            model_name = f"alice_hidden_{config['alice']['training']['n_hidden']}_{config['alice']['training']['activation']}_epochs_{config['alice']['training']['n_epochs']}_bs_{config['alice']['training']['batch_size']}"
 
-        os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alice']['testing']['prior_name']}/{config['alice']['testing']['observables']}/{model_name}/", exist_ok=True)
+            os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alice']['testing']['prior_name']}/{config['alice']['testing']['observables']}/{model_name}/", exist_ok=True)
 
-        validation_llr.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alice']['testing']['prior_name']}/{config['alice']['testing']['observables']}/{model_name}/{args.model}_validation_llr_{config['sample_name']}.pdf")
-        
-    if args.model == 'sally':
-           
-        validation_score = validation_plot(config,args)
+            validation_llr.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['alice']['testing']['prior_name']}/{config['alice']['testing']['observables']}/{model_name}/{args.model}_validation_llr_{config['sample_name']}.pdf")
+            
+        if args.model == 'sally':
+              
+            validation_score = validation_plot(config,args)
 
-        model_name = f"sally_hidden_{config['sally']['training']['n_hidden']}_{config['sally']['training']['activation']}_epochs_{config['sally']['training']['n_epochs']}_bs_{config['sally']['training']['batch_size']}"
+            model_name = f"sally_hidden_{config['sally']['training']['n_hidden']}_{config['sally']['training']['activation']}_epochs_{config['sally']['training']['n_epochs']}_bs_{config['sally']['training']['batch_size']}"
 
-        os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/", exist_ok=True)
+            os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/", exist_ok=True)
 
-        validation_score.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/{args.model}_validation_score_{config['sample_name']}.pdf")
-        
+            validation_score.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/{args.model}_validation_score_{config['sample_name']}.pdf")
+            
+            #validation_score.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/{args.model}_validation_score_{config['sample_name']}_adjusted_axis.pdf")
