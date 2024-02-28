@@ -58,7 +58,7 @@ def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, prepar
         param_card_template_file='cards/param_card_template_SMEFTsim3_MwScheme.dat'
 
     # LIP specifics
-    init_command='module load gcc63/madgraph/3.3.1',
+    init_command='module load gcc63/madgraph/3.3.1'
     
    
     channels = ['wph_mu', 'wph_e', 'wmh_mu', 'wmh_e']
@@ -100,6 +100,7 @@ def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, prepar
         cmd=f'find {main_dir}/signal_samples/*/madminer -name "run.sh" -exec sbatch -p lipq --mem=4G {{}} \;'
         os.popen(cmd)
         print(cmd)
+
 
 
     os.remove('/tmp/generate.mg5')
