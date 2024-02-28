@@ -35,6 +35,10 @@ for key in logging.Logger.manager.loggerDict:
   if "madminer" not in key:
     logging.getLogger(key).setLevel(logging.WARNING)
 
+# Choose the GPU
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "0")
+#os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "1")
 
 # timestamp for model saving
 timestamp = strftime("%d%m%y")
