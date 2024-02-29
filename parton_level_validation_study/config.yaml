@@ -1,11 +1,14 @@
 # Folder where to keep everything for MadMiner WH studies, on which we store Madgraph samples and all .h5 files (setup, analyzed events, ...)
-main_dir: /lstore/titan/martafsilva/master_thesis/parton_level_validation_study/parton_level_validation_output  
+main_dir: /lstore/titan/martafsilva/master_thesis/master_thesis_output/parton_level_no_H_decay_output
 
 # Folder where to keep all the plots 
-plot_dir: /lstore/titan/martafsilva/master_thesis/parton_level_validation_study/parton_level_validation_output/plots
+plot_dir: /lstore/titan/martafsilva/master_thesis/master_thesis_output/parton_level_no_H_decay_output
 
 # Name of setup file (without the .h5)
 setup_file: setup 
+
+#Name of the cards_folder
+cards_folder_name: cards
 
 # If running pythia, the path for the Pythia card
 pythia_card: /cards/pythia8_card.dat
@@ -96,3 +99,4 @@ sally:
     priors: ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.2] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
     prior_name: gaussian_prior_0_0.4_1000_samples #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
     n_processes:  8
+

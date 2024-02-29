@@ -37,7 +37,7 @@ for key in logging.Logger.manager.loggerDict:
     if "madminer" not in key:
         logging.getLogger(key).setLevel(logging.WARNING)
 
-def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, prepare_scripts, generate_BSM, mg_dir, launch_SLURM_jobs):
+def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, prepare_scripts, generate_BSM, mg_dir, launch_SLURM_jobs, cards_folder_name):
     """
     Generates WH signal events WH(->l v b b~), divided by W decay channel and charge.
     """
@@ -53,12 +53,12 @@ def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, prepar
     # auto width calculation
     # NB: Madgraph+SMEFTsim include terms up to quadratic order in the automatic width calculation, even when the ME^2 is truncated at the SM+interference term
     if auto_widths:
-        param_card_template_file='cards/param_card_template_SMEFTsim3_MwScheme_autoWidths.dat'
+        param_card_template_file=f'{cards_folder_name}/param_card_template_SMEFTsim3_MwScheme_autoWidths.dat'
     else:
-        param_card_template_file='cards/param_card_template_SMEFTsim3_MwScheme.dat'
+        param_card_template_file=f'{cards_folder_name}/param_card_template_SMEFTsim3_MwScheme.dat'
 
     # LIP specifics
-    init_command='module load gcc63/madgraph/3.3.1'
+    init_command='module load gcc63/madgraph/3.3.1',
     
    
     channels = ['wph_mu', 'wph_e', 'wmh_mu', 'wmh_e']
@@ -69,11 +69,11 @@ def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, prepar
             mg_directory=mg_dir,
             log_directory=f'{main_dir}/logs/{channel}_smeftsim_SM',
             mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_SM',
-            proc_card_file=f'cards/signal_processes/proc_card_{channel}_smeftsim.dat',
+            proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
             param_card_template_file=param_card_template_file,
             pythia8_card_file=pythia_card if do_pythia else None,
             sample_benchmark='sm',
-            run_card_file='cards/run_card_250k_WHMadminerCuts.dat',
+            run_card_file=f'{cards_folder_name}/run_card_250k_WHMadminerCuts.dat',
             initial_command=init_command if init_command != '' else None,
             only_prepare_script=prepare_scripts
         )
@@ -85,11 +85,11 @@ def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, prepar
                 mg_directory=mg_dir,
                 log_directory=f'{main_dir}/logs/{channel}_smeftsim_BSM',
                 mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_BSM',
-                proc_card_file=f'cards/signal_processes/proc_card_{channel}_smeftsim.dat',
+                proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
                 param_card_template_file=param_card_template_file,
                 pythia8_card_file=pythia_card if do_pythia else None,
                 sample_benchmarks=list_BSM_benchmarks,
-                run_card_files=['cards/run_card_50k_WHMadminerCuts.dat'],
+                run_card_files=[f'{cards_folder_name}/run_card_50k_WHMadminerCuts.dat'],
                 initial_command=init_command if init_command != '' else None,
                 only_prepare_script=prepare_scripts
             )
@@ -133,7 +133,8 @@ if __name__ == "__main__":
         setup_file = config['setup_file']
         pythia_card = config['pythia_card']
         mg_dir = config['mg_dir']
+        cards_folder_name = config['cards_folder_name']
 
     # Generate signal
-    gen_signal(main_dir, setup_file, args.do_pythia, pythia_card, args.auto_widths, args.prepare_scripts, args.generate_BSM, mg_dir, args.launch_SLURM_jobs)
+    gen_signal(main_dir, setup_file, args.do_pythia, pythia_card, args.auto_widths, args.prepare_scripts, args.generate_BSM, mg_dir, args.launch_SLURM_jobs, cards_folder_name)
 

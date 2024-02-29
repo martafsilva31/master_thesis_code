@@ -32,7 +32,7 @@ for key in logging.Logger.manager.loggerDict:
         logging.getLogger(key).setLevel(logging.WARNING)
 
 
-def gen_background(main_dir, setup_file, do_pythia, pythia_card, prepare_scripts, mg_dir, launch_SLURM_jobs):
+def gen_background(main_dir, setup_file, do_pythia, pythia_card, prepare_scripts, mg_dir, launch_SLURM_jobs,cards_folder_name):
     
     """
     Generates background events: W + b b~, t t~, single top t b - divided by W decay channel and charge.
@@ -55,10 +55,10 @@ def gen_background(main_dir, setup_file, do_pythia, pythia_card, prepare_scripts
             mg_directory=mg_dir,
             log_directory=f'{main_dir}/logs/{channel}_background',
             mg_process_directory=f'{main_dir}/background_samples/{channel}_background',
-            proc_card_file=f'cards/background_processes/proc_card_{channel}.dat',
-            param_card_template_file='cards/param_card_template_SMEFTsim3_MwScheme.dat',
+            proc_card_file=f'{cards_folder_name}/background_processes/proc_card_{channel}.dat',
+            param_card_template_file=f'{cards_folder_name}/param_card_template_SMEFTsim3_MwScheme.dat',
             pythia8_card_file=args.pythia_card if args.do_pythia else None,
-            run_card_file='cards/run_card_250k_WHMadminerCuts.dat',
+            run_card_file=f'{cards_folder_name}/run_card_250k_WHMadminerCuts.dat',
             sample_benchmark='sm',
             initial_command=init_command if init_command != '' else None,
             is_background=True,
@@ -74,10 +74,10 @@ def gen_background(main_dir, setup_file, do_pythia, pythia_card, prepare_scripts
             mg_directory=mg_dir,
             log_directory=f'{main_dir}/logs/{channel}_background',
             mg_process_directory=f'{main_dir}/background_samples/{channel}_background',
-            proc_card_file=f'cards/background_processes/proc_card_{channel}.dat',
-            param_card_template_file='cards/param_card_template_SMEFTsim3_MwScheme.dat',
+            proc_card_file=f'{cards_folder_name}/background_processes/proc_card_{channel}.dat',
+            param_card_template_file=f'{cards_folder_name}/param_card_template_SMEFTsim3_MwScheme.dat',
             pythia8_card_file=args.pythia_card if args.do_pythia else None,
-            run_card_file='cards/run_card_250k_WHMadminerCuts.dat',
+            run_card_file=f'{cards_folder_name}/run_card_250k_WHMadminerCuts.dat',
             sample_benchmark='sm',
             initial_command=init_command if init_command != '' else None,
             is_background=True,
@@ -93,10 +93,10 @@ def gen_background(main_dir, setup_file, do_pythia, pythia_card, prepare_scripts
             mg_directory=mg_dir,
             log_directory=f'{main_dir}/logs/{channel}_background',
             mg_process_directory=f'{main_dir}/background_samples/{channel}_background',
-            proc_card_file=f'cards/background_processes/proc_card_{channel}.dat',
-            param_card_template_file='cards/param_card_template_SMEFTsim3_MwScheme.dat',
+            proc_card_file=f'{cards_folder_name}/background_processes/proc_card_{channel}.dat',
+            param_card_template_file=f'{cards_folder_name}/param_card_template_SMEFTsim3_MwScheme.dat',
             pythia8_card_file=args.pythia_card if args.do_pythia else None,
-            run_card_file='cards/run_card_250k_WHMadminerCuts.dat',
+            run_card_file=f'{cards_folder_name}/run_card_250k_WHMadminerCuts.dat',
             sample_benchmark='sm',
             initial_command=init_command if init_command != '' else None,
             is_background=True,
@@ -133,7 +133,8 @@ if __name__ == "__main__":
         setup_file = config['setup_file']
         pythia_card = config['pythia_card']
         mg_dir = config['mg_dir']
+        cards_folder_name = config['cards_folder_name']
 
     # Generate signal
-    gen_background(main_dir, setup_file, args.do_pythia, pythia_card, args.prepare_scripts, mg_dir, args.launch_SLURM_jobs)
+    gen_background(main_dir, setup_file, args.do_pythia, pythia_card, args.prepare_scripts, mg_dir, args.launch_SLURM_jobs,cards_folder_name)
 
