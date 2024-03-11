@@ -241,8 +241,9 @@ if __name__ == "__main__":
                 is_background_process=False,
                 is_SM=False,
                 output_file_path=f'{output_dir}/signal/{process}_BSM_lhe.h5',
-            )
 
+            )
+##############Background ###############
   if args.do_backgrounds:
     os.makedirs(f'{output_dir}/background/', exist_ok=True)
 

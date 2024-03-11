@@ -37,8 +37,8 @@ for key in logging.Logger.manager.loggerDict:
     
 # Choose the GPU
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "0")
-#os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "1")
+#os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "0")
+os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "1")
 
 
 # timestamp for model saving

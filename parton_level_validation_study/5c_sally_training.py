@@ -43,6 +43,46 @@ os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "0")
 # timestamp for model saving
 timestamp = strftime("%d%m%y")
 
+def sally_augmentation(config):
+  """ Creates augmented training samples for the SALLY method """
+  
+  # access to the .h5 file with MadMiner settings
+  madminer_settings=load_madminer_settings(f"{config['main_dir']}/{config['observable_set']}/{config['sample_name']}.h5", include_nuisance_benchmarks=False)
+
+  if config['sally']['augmentation']['n_samples'] == -1:
+    nsamples = madminer_settings[6]
+
+    logging.info(
+        f'sample_name: {config["sample_name"]}; '
+        f'observable set: {config["observable_set"]}; '
+        f'training observables: {config["sally"]["training"]["observables"]}; '
+        f'nsamples: {nsamples}'
+    )
+
+  ######### Outputting training variable index for training step ##########
+  observable_dict=madminer_settings[5]
+
+  for i_obs, obs_name in enumerate(observable_dict):
+    logging.info(f'index: {i_obs}; name: {obs_name};') # this way we can easily see all the features 
+
+  ########## Sample Augmentation ###########
+
+  # object to create the augmented training samples
+  sampler=SampleAugmenter( f'{config["main_dir"]}/{config["observable_set"]}/{config["sample_name"]}.h5')
+
+  # Creates a set of training data (as many as the number of estimators) - centered around the SM
+
+  for i_estimator in range(config['sally']['training']['nestimators']):
+     
+     _,_,_,eff_n_samples = sampler.sample_train_local(theta=sampling.benchmark('sm'),
+                                        n_samples=int(nsamples),
+                                        folder=f'{config["main_dir"]}/{config["observable_set"]}/training_samples/sally',
+                                        filename=f'train_score_{config["sample_name"]}_{i_estimator}',
+                                        sample_only_from_closest_benchmark=False)
+    
+  #logging.info(f'effective number of samples for estimator {i_estimator}: {eff_n_samples}')
+
+
 def sally_training(config):
   
   """ Trains an ensemble of NNs for the SALLY method """
@@ -87,17 +127,17 @@ def sally_training(config):
   # result is a list of N tuples, where N is the number of estimators,
   # and each tuple contains two arrays, the first with the training losses, the second with the validation losses
   result = ensemble.train_all(method='sally',
-    t_xz=[f"{config['main_dir']}/{config['observable_set']}/training_samples/alices_{config['sally']['training']['training_samples_name']}/t_xz_train_ratio_{config['sample_name']}_{i_estimator}.npy" for i_estimator in range(config['sally']['training']['nestimators'])],
-    x=[f"{config['main_dir']}/{config['observable_set']}/training_samples/alices_{config['sally']['training']['training_samples_name']}/x_train_ratio_{config['sample_name']}_{i_estimator}.npy"for i_estimator in range(config['sally']['training']['nestimators'])],
+    t_xz=[f"{config['main_dir']}/{config['observable_set']}/training_samples/sally/t_xz_train_score_{config['sample_name']}_{i_estimator}.npy" for i_estimator in range(config['sally']['training']['nestimators'])],
+    x=[f"{config['main_dir']}/{config['observable_set']}/training_samples/sally/x_train_score_{config['sample_name']}_{i_estimator}.npy"for i_estimator in range(config['sally']['training']['nestimators'])],
     memmap=True,verbose="all",n_workers=config["sally"]["training"]["n_workers"],limit_samplesize=nsamples,n_epochs=config["sally"]["training"]["n_epochs"],batch_size=config["sally"]["training"]["batch_size"],
   )    
   
   # saving ensemble state dict and training and validation losses
-  os.makedirs(f"{config['main_dir']}/{config['observable_set']}/models/{config['sally']['training']['training_samples_name']}/{config['sally']['training']['observables']}/{model_name}", exist_ok=True)
-  ensemble.save(f"{config['main_dir']}/{config['observable_set']}/models/{config['sally']['training']['training_samples_name']}/{config['sally']['training']['observables']}/{model_name}/sally_ensemble_{config['sample_name']}")
-  np.savez(f"{config['main_dir']}/{config['observable_set']}/models/{config['sally']['training']['training_samples_name']}/{config['sally']['training']['observables']}/{model_name}/sally_losses_{config['sample_name']}",result)
+  os.makedirs(f"{config['main_dir']}/{config['observable_set']}/models/sally/{config['sally']['training']['observables']}/{model_name}", exist_ok=True)
+  ensemble.save(f"{config['main_dir']}/{config['observable_set']}/models/sally/{config['sally']['training']['observables']}/{model_name}/sally_ensemble_{config['sample_name']}")
+  np.savez(f"{config['main_dir']}/{config['observable_set']}/models/sally/{config['sally']['training']['observables']}/{model_name}/sally_losses_{config['sample_name']}",result)
 
-  results = np.load(f"{config['main_dir']}/{config['observable_set']}/models/{config['sally']['training']['training_samples_name']}/{config['sally']['training']['observables']}/{model_name}/sally_losses_{config['sample_name']}.npz")
+  results = np.load(f"{config['main_dir']}/{config['observable_set']}/models/sally/{config['sally']['training']['observables']}/{model_name}/sally_losses_{config['sample_name']}.npz")
 
   fig=plt.figure()
 
@@ -110,10 +150,10 @@ def sally_training(config):
   plt.tight_layout()
 
 
-  os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/losses/{config['sally']['training']['training_samples_name']}/{config['sally']['training']['observables']}/{model_name}", exist_ok=True)
+  os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/losses/sally/{config['sally']['training']['observables']}/{model_name}", exist_ok=True)
 
   # Save the plot #Tenho que por aqui o path coreeto
-  fig.savefig(f"{config['plot_dir']}/{config['observable_set']}/losses/{config['sally']['training']['training_samples_name']}/{config['sally']['training']['observables']}/{model_name}/sally_losses_{config['sample_name']}.png")
+  fig.savefig(f"{config['plot_dir']}/{config['observable_set']}/losses/sally/{config['sally']['training']['observables']}/{model_name}/sally_losses_{config['sample_name']}.png")
 
 
 if __name__ == "__main__":
@@ -121,6 +161,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Trains an ensemble of NNs as estimators for the SALLY method.',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('--config_file', help='Path to the YAML configuration file', default='config.yaml')
+
+    parser.add_argument('--augment',help="creates training samples;",action='store_true',  default = False)
+    
+    parser.add_argument('--train',help=" does sally training; ",action='store_true',  default = False)
+
 
 
     args=parser.parse_args()
@@ -132,9 +177,11 @@ if __name__ == "__main__":
                 
     logging.info(f'observable set: {config["observable_set"]}; sample type: {config["sample_name"]}')
     
+    if args.augment:
+        sally_augmentation(config)
+    if args.train:
+        sally_training(config)
+
     
-    sally_training(config)
-
-
 
     
