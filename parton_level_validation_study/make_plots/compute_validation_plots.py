@@ -32,45 +32,86 @@ os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "0")
 #os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "1")
 
 def augment_test(config):
-
+    
   """  
-  Extracts the joint likelihood ratio and the joint score for the test partition with the ALICES method
+  Extracts the joint likelihood ratio and the joint score for the test partition with the ALICES or SALLY method
   """
 
-  # access to the .h5 file with MadMiner settings
-  madminer_settings=load_madminer_settings(f"{config['main_dir']}/{config['observable_set']}/{config['sample_name']}.h5", include_nuisance_benchmarks=False)
 
-  if config['alices']['testing']['n_samples'] == -1:
-    nsamples=madminer_settings[6]
+  if args.model == 'alices' or args.model == 'alice':
+    # access to the .h5 file with MadMiner settings
+    madminer_settings=load_madminer_settings(f"{config['main_dir']}/{config['observable_set']}/{config['sample_name']}.h5", include_nuisance_benchmarks=False)
 
-  else: 
-    nsamples = config['alices']['testing']['n_samples']
+    if config['alices']['testing']['n_samples'] == -1:
+      nsamples=madminer_settings[6]
 
-    logging.info(
-        f'sample_name: {config["sample_name"]}; '
-        f'observable set: {config["observable_set"]}; '
-        f'nsamples: {nsamples}'
+    else: 
+      nsamples = config['alices']['testing']['n_samples']
+
+      logging.info(
+          f'sample_name: {config["sample_name"]}; '
+          f'observable set: {config["observable_set"]}; '
+          f'nsamples: {nsamples}'
+      )
+    ########## Sample Augmentation ###########
+    # # object to create the augmented training samples
+    sampler=SampleAugmenter( f'{config["main_dir"]}/{config["observable_set"]}/{config["sample_name"]}.h5')
+
+    # Creates a set of testing data - centered around the SM
+    
+    x, theta0, theta1, y, r_xz, t_xz, n_effective = sampler.sample_train_ratio(
+    theta0=sampling.random_morphing_points(config["alices"]["testing"]["n_thetas"], [config["alices"]["testing"]["priors"]]),
+    theta1=sampling.benchmark("sm"),
+    n_samples=int(nsamples),
+    folder=f'{config["main_dir"]}/{config["observable_set"]}/testing_samples/alices_{config["alices"]["testing"]["prior_name"]}',
+    filename=f'test_ratio_{config["sample_name"]}',
+    sample_only_from_closest_benchmark=True,
+    return_individual_n_effective=True,
+    partition = "test",
+    n_processes = config["alices"]["testing"]["n_processes"]
     )
-  ########## Sample Augmentation ###########
-  # # object to create the augmented training samples
-  sampler=SampleAugmenter( f'{config["main_dir"]}/{config["observable_set"]}/{config["sample_name"]}.h5')
 
-  # Creates a set of testing data - centered around the SM
+    logging.info(f'effective number of samples: {n_effective}')
   
-  x, theta0, theta1, y, r_xz, t_xz, n_effective = sampler.sample_train_ratio(
-  theta0=sampling.random_morphing_points(config["alices"]["testing"]["n_thetas"], [config["alices"]["testing"]["priors"]]),
-  theta1=sampling.benchmark("sm"),
-  n_samples=int(nsamples),
-  folder=f'{config["main_dir"]}/{config["observable_set"]}/testing_samples/alices_{config["alices"]["testing"]["prior_name"]}',
-  filename=f'test_ratio_{config["sample_name"]}',
-  sample_only_from_closest_benchmark=True,
-  return_individual_n_effective=True,
-  partition = "test",
-  n_processes = config["alices"]["testing"]["n_processes"]
-  )
+  if args.model == 'sally':
+       
+    # access to the .h5 file with MadMiner settings
+    madminer_settings=load_madminer_settings(f"{config['main_dir']}/{config['observable_set']}/{config['sample_name']}.h5", include_nuisance_benchmarks=False)
 
-  logging.info(f'effective number of samples: {n_effective}')
+    if config['sally']['testing']['n_samples'] == -1:
+      nsamples=madminer_settings[6]
 
+    else: 
+      nsamples = config['sally']['testing']['n_samples']
+      logging.info(
+          f'sample_name: {config["sample_name"]}; '
+          f'observable set: {config["observable_set"]}; '
+          f'training observables: {config["sally"]["training"]["observables"]}; '
+          f'nsamples: {nsamples}'
+      )
+
+    ######### Outputting training variable index for training step ##########
+    observable_dict=madminer_settings[5]
+
+    for i_obs, obs_name in enumerate(observable_dict):
+      logging.info(f'index: {i_obs}; name: {obs_name};') # this way we can easily see all the features 
+
+    ########## Sample Augmentation ###########
+
+    # object to create the augmented training samples
+    sampler=SampleAugmenter( f'{config["main_dir"]}/{config["observable_set"]}/{config["sample_name"]}.h5')
+
+    # Creates a set of training data (as many as the number of estimators) - centered around the SM
+
+    
+      
+    _,_,_,eff_n_samples = sampler.sample_train_local(theta=sampling.benchmark('sm'),
+                                        n_samples=int(nsamples),
+                                        folder=f'{config["main_dir"]}/{config["observable_set"]}/testing_samples/sally',
+                                        filename=f'test_score_{config["sample_name"]}',
+                                        partition = "test",
+                                        sample_only_from_closest_benchmark=True)
+    
 def validation_plot(config,args):
     
     if args.model == 'alices':
@@ -142,15 +183,15 @@ def validation_plot(config,args):
 
         model_name = f"sally_hidden_{config['sally']['training']['n_hidden']}_{config['sally']['training']['activation']}_epochs_{config['sally']['training']['n_epochs']}_bs_{config['sally']['training']['batch_size']}"
 
-        model_path = f"{config['main_dir']}/{config['observable_set']}/models/{config['sally']['training']['training_samples_name']}/{config['sally']['training']['observables']}/{model_name}/sally_ensemble_{config['sample_name']}"
+        model_path = f"{config['main_dir']}/{config['observable_set']}/models/sally/{config['sally']['training']['observables']}/{model_name}/sally_ensemble_{config['sample_name']}"
 
 
         sally = Ensemble()
         sally.load(model_path)
         
-        joint_score = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/alices_{config['sally']['testing']['prior_name']}/t_xz_test_ratio_{config['sample_name']}.npy")
-        thetas = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/alices_{config['sally']['testing']['prior_name']}/theta0_test_ratio_{config['sample_name']}.npy")
-        x = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/alices_{config['sally']['testing']['prior_name']}/x_test_ratio_{config['sample_name']}.npy")
+        joint_score = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/sally/t_xz_test_score_{config['sample_name']}.npy")
+        thetas = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/sally/theta_test_score_{config['sample_name']}.npy")
+        x = np.load(f"{config['main_dir']}/{config['observable_set']}/testing_samples/sally/x_test_score_{config['sample_name']}.npy")
 
         t_hat = sally.evaluate_score(x=x, theta = thetas)
         
@@ -173,7 +214,7 @@ if __name__ == '__main__':
     
     parser.add_argument('--config_file', help='Path to the YAML configuration file', default='../config.yaml')
 
-    parser.add_argument('--augment_test',help="creates testing samples with the ALICES method;",action='store_true',  default =False)
+    parser.add_argument('--augment_test',help="creates testing samples with the ALICES or SALLY method;",action='store_true',  default =False)
     
     parser.add_argument('-m','--model',help='which model to plot validation plot: SALLY, ALICE, ALICES' , choices=['sally','alice','alices'], default='alices')
     
@@ -218,8 +259,8 @@ if __name__ == '__main__':
 
             model_name = f"sally_hidden_{config['sally']['training']['n_hidden']}_{config['sally']['training']['activation']}_epochs_{config['sally']['training']['n_epochs']}_bs_{config['sally']['training']['batch_size']}"
 
-            os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/", exist_ok=True)
+            os.makedirs(f"{config['plot_dir']}/{config['observable_set']}/validation/sally/{config['sally']['testing']['observables']}/{model_name}/", exist_ok=True)
 
-            validation_score.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/{args.model}_validation_score_{config['sample_name']}.pdf")
+            validation_score.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/sally/{config['sally']['testing']['observables']}/{model_name}/{args.model}_validation_score_{config['sample_name']}.pdf")
             
-            #validation_score.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/{config['sally']['testing']['prior_name']}/{config['sally']['testing']['observables']}/{model_name}/{args.model}_validation_score_{config['sample_name']}_adjusted_axis.pdf")
+            #validation_score.savefig(f"{config['plot_dir']}/{config['observable_set']}/validation/sally/{config['sally']['testing']['observables']}/{model_name}/{args.model}_validation_score_{config['sample_name']}_adjusted_axis.pdf")
