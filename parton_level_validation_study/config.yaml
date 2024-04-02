@@ -22,7 +22,7 @@ mg_dir: /cvmfs/sw.el7/gcc63/madgraph/3.3.1/b01/
 observable_set: all
 
 # .h5 sample name to augment/train
-sample_name: ud_wph_mu_smeftsim_SM_lhe #choices ['wh_signalOnly_SMonly_noSysts_lhe','wh_withBackgrounds_SMonly_noSysts_lhe']
+sample_name: ud_wph_mu_smeftsim_lhe #choices ['wh_signalOnly_SMonly_noSysts_lhe','wh_withBackgrounds_SMonly_noSysts_lhe']
 
 alices:
 
@@ -30,8 +30,8 @@ alices:
   augmentation:
     n_samples:  -1
     n_thetas:  1000
-    priors: ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
-    prior_name:  gaussian_prior_0_0.4 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    priors: ['gaussian', 0, 0.4]  #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
+    prior_name:  gaussian_prior_0_0.4 #flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
     n_processes:  8
 
   training:
@@ -40,7 +40,7 @@ alices:
     activation:  "relu"
     training_samples_name: gaussian_prior_0_0.4 #flat_prior_m1.2_p1.2  #"gaussian_prior_0_0.4"
     alpha: 5
-    n_workers: 4
+    n_workers: 8
     n_samples:  -1
     n_epochs: 50
     batch_size: 128
@@ -48,11 +48,11 @@ alices:
 
   testing:
     observables:  "kinematic_only"
-    n_samples:  1000
-    n_thetas:  1000
+    n_samples:  100
+    n_thetas:  100
     n_processes:  8
-    priors: ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.2] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
-    prior_name: gaussian_prior_0_0.4_1000_samples #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    priors: ['gaussian', 0, 0.4]   #['flat', -1.2, 1.2] #['gaussian', 0, 0.2] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
+    prior_name: gaussian_prior_0_0.4_100_samples #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
     n_processes:  8
     
 
@@ -63,7 +63,7 @@ alice:
     n_hidden: [50,]
     activation:  "relu"
     training_samples_name: gaussian_prior_0_0.4 #flat_prior_m1.2_p1.2  #"gaussian_prior_0_0.4"
-    n_workers: 4
+    n_workers: 8
     n_samples:  -1
     n_epochs: 50
     batch_size: 128
@@ -74,8 +74,8 @@ alice:
     n_samples:  1000
     n_thetas:  1000
     n_processes:  8
-    priors: ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.2] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
-    prior_name: gaussian_prior_0_0.4_1000_samples #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    priors: ['flat', -1.2, 1.2]  #['flat', -1.2, 1.2] #['gaussian', 0, 0.2] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
+    prior_name: gaussian_prior_0_0.4_100_samples #gaussian_prior_0_0.4_1000_samples #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
     n_processes:  8
     
 sally:
@@ -100,7 +100,51 @@ sally:
     n_samples:  1000
     n_thetas:  1000
     n_processes:  8
-    priors: ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.2] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
-    prior_name: gaussian_prior_0_0.4_1000_samples #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    prior_name: sally #gaussian_prior_0_0.2 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
     n_processes:  8
 
+###### Plotting - limits
+
+limits:
+
+  # what to use to extract the limits, given as input to the expected_limits function, choices = ['rate','histo','sally', 'ml']
+  mode: ml
+
+  # which of the training observable sets to use when extracting limits from a ALICES, ALICE or ml  method
+  observables: kinematic_only
+
+  prior: gaussian_prior_0_0.4 # for sally prior name equal to sally
+
+  # which of the architecture model (for each of the input variable configurations) to use
+  model: alices_hidden_[50]_relu_alpha_5_epochs_50_bs_128_same_data
+
+  #ALICE, ALICES or SALLY
+  method: alices
+
+  # if the limits are derived in shape-only histograms (i.e. without Poisson likelihood term)
+  shape_only: False 
+  
+  # which of the observables to use in the x-axis if extracting limits from histograms; required='histo' 
+  observable_x: None
+
+  # which of the observables to use in the y-axis if extracting limits from histograms; required='histo'
+  observable_y: None
+
+  # binning of the variable in the x-axis (can either be a standard observable or output of the ALICES/ALICE/SALLY network), type=float
+  binning_x: None 
+
+  # binning of the variable in the y-axis, type=float
+  binning_y: None
+
+  # whether or not to do histograms of likelihood in log_scale
+  do_log: False
+
+  # process charge+flavor inclusive samples',type=int
+  lumi: 300
+
+  # turns on debug functions
+  debug: False
+
+  grid_ranges: [-1.2,1.2]
+
+  grid_resolutions: 300
