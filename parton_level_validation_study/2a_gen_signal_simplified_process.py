@@ -33,7 +33,7 @@ for key in logging.Logger.manager.loggerDict:
     if "madminer" not in key:
         logging.getLogger(key).setLevel(logging.WARNING)
 
-def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, mg_dir, cards_folder_name):
+def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, mg_dir, cards_folder_name, generate_BSM):
     """
     Generates WH signal events WH(-> mu v b b~)
     """
@@ -69,6 +69,21 @@ def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, mg_dir
         initial_command=init_command if init_command != '' else None,
     )
 
+    # BSM samples with MG (re)weights of other benchmarks (inc. SM)
+    if generate_BSM:
+   
+        miner.run_multiple(
+            mg_directory=mg_dir,
+            log_directory=f'{main_dir}/logs/ud_wph_mu_smeftsim_BSM',
+            mg_process_directory=f'{main_dir}/signal_samples/ud_wph_mu_smeftsim_BSM',
+            proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_ud_wph_mu_smeftsim.dat',
+            param_card_template_file=param_card_template_file,
+            pythia8_card_file=pythia_card if do_pythia else None,
+            sample_benchmarks=list_BSM_benchmarks,
+            run_card_files=[f'{cards_folder_name}/run_card_200k_WHMadminerCuts.dat'],
+            initial_command=init_command if init_command != '' else None,
+            
+        )
 
     os.remove('/tmp/generate.mg5')
 
@@ -84,6 +99,9 @@ if __name__ == "__main__":
 
     parser.add_argument('--auto_widths',help='Use parameter card with automatic width calculation',action='store_true',default=False)
 
+    parser.add_argument('--generate_BSM',help='Generate additional events at the BSM benchmarks',action='store_true',default=False)
+
+
     args=parser.parse_args()
 
     # Read configuration parameters from the YAML file
@@ -97,4 +115,4 @@ if __name__ == "__main__":
         cards_folder_name = config['cards_folder_name']
 
     # Generate signal
-    gen_signal(main_dir, setup_file, args.do_pythia, pythia_card, args.auto_widths, mg_dir, cards_folder_name)
+    gen_signal(main_dir, setup_file, args.do_pythia, pythia_card, args.auto_widths, mg_dir, cards_folder_name, args.generate_BSM)

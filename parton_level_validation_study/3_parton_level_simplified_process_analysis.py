@@ -116,6 +116,10 @@ if __name__ == "__main__":
 
   parser.add_argument('--config_file', help='Path to the YAML configuration file', default='config.yaml')
 
+  parser.add_argument('--do_signal',help='analyze signal events', action='store_true',default=True)
+
+  parser.add_argument('--do_BSM',help='analyze samples generated at the BSM benchmarks', action='store_true',default=False)
+
   args=parser.parse_args()
 
   # Read configuration parameters from the YAML file
@@ -128,16 +132,28 @@ if __name__ == "__main__":
 
   output_dir=f'{main_dir}/{observable_set}'
 
-    ############## Signal ###############
+############## Signal ###############
     
 
-  os.makedirs(f'{output_dir}/signal/',exist_ok=True)
 
-  process_events(observable_set,
-    event_path=f'{main_dir}/signal_samples/ud_wph_mu_smeftsim_SM',
-    setup_file_path=f'{main_dir}/{setup_file}.h5',
-    is_background_process=False,
-    is_SM=True,
-    output_file_path=f'{output_dir}/signal/ud_wph_mu_smeftsim_SM_lhe.h5',
-  )
+  if args.do_signal:
 
+    os.makedirs(f'{output_dir}/signal/',exist_ok=True)
+
+    process_events(observable_set,
+        event_path=f'{main_dir}/signal_samples/ud_wph_mu_smeftsim_SM',
+        setup_file_path=f'{main_dir}/{setup_file}.h5',
+        is_background_process=False,
+        is_SM=True,
+        output_file_path=f'{output_dir}/signal/ud_wph_mu_smeftsim_SM_lhe.h5',
+    )
+
+    if args.do_BSM:
+        process_events(observable_set,
+            event_path=f'{main_dir}/signal_samples/ud_wph_mu_smeftsim_BSM',
+            setup_file_path=f'{main_dir}/{setup_file}.h5',
+            is_background_process=False,
+            is_SM=False,
+            output_file_path=f'{output_dir}/signal/ud_wph_mu_smeftsim_BSM_lhe.h5',
+
+        )
