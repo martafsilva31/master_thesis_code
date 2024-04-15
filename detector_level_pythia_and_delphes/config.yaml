@@ -4,7 +4,7 @@
 main_dir: /lstore/titan/martafsilva/master_thesis/master_thesis_output/detector_level_pythia_and_delphes
 
 # Folder where to keep all the plots 
-plot_dir: /lstore/titan/martafsilva/master_thesis/master_thesis_output/detector_level_pythia_and_delphes/plots# Name of setup file (without the .h5)
+plot_dir: /lstore/titan/martafsilva/master_thesis/master_thesis_output/detector_level_pythia_and_delphes/plots # Name of setup file (without the .h5)
 # Name of setup file (without the .h5)
 
 setup_file: setup 
@@ -18,3 +18,28 @@ pythia_card: cards/pythia8_card.dat
 # Path for MadGraph installation
 mg_dir: /cvmfs/sw.el7/gcc63/madgraph/3.3.1/b01/
 
+# .h5 sample name to augment/train
+sample_name: wh_signalWithBSM  #choices 
+
+
+alices:
+
+# Augmentation with alices (good idea for the training and testing to be consistent)
+  augmentation:
+    n_samples:  -1
+    n_thetas:  10000
+    priors: ['gaussian', 0, 0.4]  # ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
+    prior_name: gaussian_prior_0_0.4 #gaussian_prior_0_0.4 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    n_processes:  32
+
+  training:
+    observables:  "kinematic_only"
+    n_hidden: [50,]
+    activation:  "relu"
+    training_samples_name: gaussian_prior_0_0.4 #flat_prior_m1.2_p1.2  #"gaussian_prior_0_0.4"
+    alpha: 5 
+    n_workers: 4
+    n_samples:  -1
+    n_epochs: 50
+    batch_size: 128
+    nestimators: 5 #number of estimators for ALICES method NN ensemble
