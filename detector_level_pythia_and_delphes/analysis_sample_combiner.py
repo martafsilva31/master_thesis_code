@@ -92,12 +92,12 @@ if __name__ == "__main__":
           f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'
         )
 
-      if args.do_signal:
-        combine_and_shuffle([
-          f'{args.main_dir}/w{charge}h_{flavor}_signalOnly.h5',
-          f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'],
-          f'{args.main_dir}/w{charge}h_{flavor}_withBackgrounds.h5'
-        )
+        if args.do_signal:
+          combine_and_shuffle([
+            f'{args.main_dir}/w{charge}h_{flavor}_signalOnly.h5',
+            f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'],
+            f'{args.main_dir}/w{charge}h_{flavor}_withBackgrounds.h5'
+          )
 
     if args.do_bsm:
         BSM_benchmarks = ['pos_chwtil','neg_chwtil']
@@ -110,35 +110,37 @@ if __name__ == "__main__":
                 logging.warning(f'found {len(list_samples_to_combine)} runs for {sample}. weighting each by the inverse of the number of runs')
                 combine_and_shuffle(list_samples_to_combine,f'{args.main_dir}/{sample}_{bench}.h5',k_factors=1.0/len(list_samples_to_combine))
 
-        combine_and_shuffle([
-          f'{args.main_dir}/w{charge}h_{flavor}_pos_chwtil.h5',
-          f'{args.main_dir}/w{charge}h_{flavor}_neg_chwtil.h5'],
-          f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5'
-        )
+        for (flavor,charge) in flavor_charge_combinations:
 
-        if args.do_signal:
-            combine_and_shuffle([
-                f'{args.main_dir}/w{charge}h_{flavor}_signalOnly.h5',
-                f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5'],
-                f'{args.main_dir}/w{charge}h_{flavor}_signalWithBSM.h5'
-            )
-        
-        if args.do_backgrounds:
-            combine_and_shuffle([
-                f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5',
-                f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'],
-                f'{args.main_dir}/w{charge}h_{flavor}_backgroundWithBSM.h5'
-            )
+          combine_and_shuffle([
+            f'{args.main_dir}/w{charge}h_{flavor}_pos_chwtil.h5',
+            f'{args.main_dir}/w{charge}h_{flavor}_neg_chwtil.h5'],
+            f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5'
+          )
 
-            if args.do_signal:
-                combine_and_shuffle([
-                    f'{args.main_dir}/w{charge}h_{flavor}_signalWithBSM.h5',
-                    f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'],
-                    f'{args.main_dir}/w{charge}h_{flavor}_signalwithBSMAndBackgrounds.h5'
-                )
+          if args.do_signal:
+              combine_and_shuffle([
+                  f'{args.main_dir}/w{charge}h_{flavor}_signalOnly.h5',
+                  f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5'],
+                  f'{args.main_dir}/w{charge}h_{flavor}_signalWithBSM.h5'
+              )
+          
+          if args.do_backgrounds:
+              combine_and_shuffle([
+                  f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5',
+                  f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'],
+                  f'{args.main_dir}/w{charge}h_{flavor}_backgroundWithBSM.h5'
+              )
+
+              if args.do_signal:
+                  combine_and_shuffle([
+                      f'{args.main_dir}/w{charge}h_{flavor}_signalWithBSM.h5',
+                      f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'],
+                      f'{args.main_dir}/w{charge}h_{flavor}_signalwithBSMAndBackgrounds.h5'
+                  )
 
 
-    logging.info('finished standard sample combination for training of ML methods, will now start the combinations used for plotting')
+  logging.info('finished standard sample combination for training of ML methods, will now start the combinations used for plotting')
 
   if args.combine_flavors:
     for charge in ('p','m'):
