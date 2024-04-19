@@ -24,7 +24,7 @@ from madminer.ml import ParameterizedRatioEstimator, Ensemble
 logging.basicConfig(
   format='%(asctime)-5.5s %(funcName)-20.20s %(levelname)-7.7s %(message)s',
   datefmt='%H:%M',
-  level=logging.DEBUG
+  level=logging.INFO
 )
 
 # Output of all other modules (e.g. matplotlib)
@@ -49,11 +49,14 @@ def alices_augmentation(config):
   if config['alices']['augmentation']['n_samples'] == -1:
     nsamples = madminer_settings[6]
 
+  else:
+    nsamples = config['alices']['augmentation']['n_samples']
     logging.info(
         f'sample_name: {config["sample_name"]}; '
         f'training observables: {config["alices"]["training"]["observables"]}; '
         f'nsamples: {nsamples}'
     )
+
 
   ######### Outputting training variable index for training step ##########
   observable_dict=madminer_settings[5]
@@ -77,7 +80,7 @@ def alices_augmentation(config):
     filename=f'train_ratio_{config["sample_name"]}_{i_estimator}',
     sample_only_from_closest_benchmark=True,
     return_individual_n_effective=True,
-    n_processes = config["alices"]["augmentation"]["n_processes"]
+    n_processes = 8
     )
 
   logging.info(f'effective number of samples: {n_effective}')
@@ -93,6 +96,9 @@ def alices_training(config):
 
   if config['alices']['augmentation']['n_samples'] == -1:
     nsamples = madminer_settings[6]
+
+  else:
+    nsamples = config['alices']['augmentation']['n_samples']
 
     logging.info(
         f'sample_name: {config["sample_name"]}; '
