@@ -24,7 +24,7 @@ from madminer.ml import ParameterizedRatioEstimator, Ensemble
 logging.basicConfig(
   format='%(asctime)-5.5s %(funcName)-20.20s %(levelname)-7.7s %(message)s',
   datefmt='%H:%M',
-  level=logging.DEBUG
+  level=logging.INFO
 )
 
 # Output of all other modules (e.g. matplotlib)
@@ -55,6 +55,8 @@ def alices_augmentation(config):
         f'training observables: {config["alices"]["training"]["observables"]}; '
         f'nsamples: {nsamples}'
     )
+  else:
+    nsamples = config['alices']['augmentation']['n_samples'] 
 
   ######### Outputting training variable index for training step ##########
   observable_dict=madminer_settings[5]
@@ -92,7 +94,7 @@ def alices_training(config):
   # access to the .h5 file with MadMiner settings
   madminer_settings=load_madminer_settings(f"{config['main_dir']}/{config['observable_set']}/{config['sample_name']}.h5", include_nuisance_benchmarks=False)
 
-  if config['alices']['augmentation']['n_samples'] == -1:
+  if config['alices']['training']['n_samples'] == -1:
     nsamples = madminer_settings[6]
 
     logging.info(
@@ -101,6 +103,8 @@ def alices_training(config):
         f'training observables: {config["alices"]["training"]["observables"]}; '
         f'nsamples: {nsamples}'
     )
+  else:
+    nsamples= config['alices']['training']['n_samples'] 
 
   ######### Outputting training variable index for training step ##########
   observable_dict=madminer_settings[5]
