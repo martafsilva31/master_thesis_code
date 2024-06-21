@@ -2,14 +2,14 @@
 """
 gen_signal.py
 
-Generates WH signal events WH(->l v b b~), divided by W decay channel and charge (250k events each/submission)
+Generates WH signal events WH(->l v b b~), divided by W decay channel and charge 
 
-Can use different morphing setups (default: CP-odd operator only).
+Can use different morphing setups (uncomment/ change the bsm benchmarks depending on the setup being used (CP-odd, CP-even, 2D) and use the corresponding config file).
 
 - sample contains weights for different benchmarks (from MG reweighting)
 
 Can also generate events at the BSM benchmarks to populate regions of phase space not well populated by the SM sample
-- smaller number than for SM point, 50k for each charge+flavour combination
+- smaller number than for SM point, 1/5 for each charge+flavour combination
 - reweighted to other benchmarks (inc. SM point)
 
 Marta Silva (LIP/IST/CERN-ATLAS), 02/04/2024
@@ -66,54 +66,126 @@ def gen_signal(main_dir, setup_file, do_pythia, pythia_card, auto_widths, prepar
     factor=3*math.ceil(args.nevents/1e6) # to have as many signal events as you have total background events ()
 
     # SM samples with MG (re)weights of BSM benchmarks
-    # for channel in channels:
-    #     miner.run_multiple(
-    #         mg_directory=mg_dir,
-    #         log_directory=f'{main_dir}/logs/{channel}_smeftsim_SM',
-    #         mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_SM',
-    #         proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
-    #         param_card_template_file=param_card_template_file,
-    #         pythia8_card_file=pythia_card if do_pythia else None,
-    #         sample_benchmarks ='[sm'],
-    #         is_background = not args.reweight,
-    #         run_card_files=[f'{cards_folder_name}/run_card_250k_WHMadminerCuts.dat' for _ in range(factor)],
-    #         initial_command=init_command if init_command != '' else None,
-    #         only_prepare_script=prepare_scripts
-    #     )
+    for channel in channels:
+        miner.run_multiple(
+            mg_directory=mg_dir,
+            log_directory=f'{main_dir}/logs/{channel}_smeftsim_SM',
+            mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_SM',
+            proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
+            param_card_template_file=param_card_template_file,
+            pythia8_card_file=pythia_card if do_pythia else None,
+            sample_benchmarks =['sm'],
+            is_background = not args.reweight,
+            run_card_files=[f'{cards_folder_name}/run_card_250k_WHMadminerCuts.dat' for _ in range(factor)],
+            initial_command=init_command if init_command != '' else None,
+            only_prepare_script=prepare_scripts
+        )
 
     # BSM samples with MG (re)weights of other benchmarks (inc. SM)
     if generate_BSM:
         for channel in channels:
 
+    ################################# Uncomment this for CP-even BSM generation: just need to change the name of the bsm points #############################
+
+        #     miner.run_multiple(
+        #         mg_directory=mg_dir,
+        #         log_directory=f'{main_dir}/logs/{channel}_smeftsim_morphing_basis_vector_1',
+        #         mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_morphing_basis_vector_1',
+        #         proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
+        #         param_card_template_file=param_card_template_file,
+        #         pythia8_card_file=pythia_card if do_pythia else None,
+        #         sample_benchmarks=['morphing_basis_vector_1'],
+        #         is_background = not args.reweight,
+        #         run_card_files=[f'{cards_folder_name}/run_card_50k_WHMadminerCuts.dat' for _ in range(factor)],
+        #         initial_command=init_command if init_command != '' else None,
+        #         only_prepare_script=prepare_scripts
+        # )
+
+
+
+        #     miner.run_multiple(
+        #         mg_directory=mg_dir,
+        #         log_directory=f'{main_dir}/logs/{channel}_smeftsim_morphing_basis_vector_2',
+        #         mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_morphing_basis_vector_2',
+        #         proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
+        #         param_card_template_file=param_card_template_file,
+        #         pythia8_card_file=pythia_card if do_pythia else None,
+        #         sample_benchmarks=['morphing_basis_vector_2'],
+        #         is_background = not args.reweight,
+        #         run_card_files=[f'{cards_folder_name}/run_card_50k_WHMadminerCuts.dat' for _ in range(factor)],
+        #         initial_command=init_command if init_command != '' else None,
+        #         only_prepare_script=prepare_scripts
+        #     )
+
             miner.run_multiple(
                 mg_directory=mg_dir,
-                log_directory=f'{main_dir}/logs/{channel}_smeftsim_pos_chwtil',
-                mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_pos_chwtil',
+                log_directory=f'{main_dir}/logs/{channel}_smeftsim_bench_1',
+                mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_bench_1',
                 proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
                 param_card_template_file=param_card_template_file,
                 pythia8_card_file=pythia_card if do_pythia else None,
-                sample_benchmarks=['pos_chwtil'],
+                sample_benchmarks=['bench_1'],
                 is_background = not args.reweight,
                 run_card_files=[f'{cards_folder_name}/run_card_50k_WHMadminerCuts.dat' for _ in range(factor)],
                 initial_command=init_command if init_command != '' else None,
                 only_prepare_script=prepare_scripts
         )
 
-
-
             miner.run_multiple(
                 mg_directory=mg_dir,
-                log_directory=f'{main_dir}/logs/{channel}_smeftsim_neg_chwtil',
-                mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_neg_chwtil',
+                log_directory=f'{main_dir}/logs/{channel}_smeftsim_bench_2',
+                mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_bench_2',
                 proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
                 param_card_template_file=param_card_template_file,
                 pythia8_card_file=pythia_card if do_pythia else None,
-                sample_benchmarks=['neg_chwtil'],
+                sample_benchmarks=['bench_2'],
                 is_background = not args.reweight,
                 run_card_files=[f'{cards_folder_name}/run_card_50k_WHMadminerCuts.dat' for _ in range(factor)],
                 initial_command=init_command if init_command != '' else None,
                 only_prepare_script=prepare_scripts
             )
+
+            miner.run_multiple(
+                mg_directory=mg_dir,
+                log_directory=f'{main_dir}/logs/{channel}_smeftsim_bench_3',
+                mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_bench_3',
+                proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
+                param_card_template_file=param_card_template_file,
+                pythia8_card_file=pythia_card if do_pythia else None,
+                sample_benchmarks=['bench_3'],
+                is_background = not args.reweight,
+                run_card_files=[f'{cards_folder_name}/run_card_50k_WHMadminerCuts.dat' for _ in range(factor)],
+                initial_command=init_command if init_command != '' else None,
+                only_prepare_script=prepare_scripts
+            )
+
+            miner.run_multiple(
+                mg_directory=mg_dir,
+                log_directory=f'{main_dir}/logs/{channel}_smeftsim_bench_4',
+                mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_bench_4',
+                proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
+                param_card_template_file=param_card_template_file,
+                pythia8_card_file=pythia_card if do_pythia else None,
+                sample_benchmarks=['bench_4'],
+                is_background = not args.reweight,
+                run_card_files=[f'{cards_folder_name}/run_card_50k_WHMadminerCuts.dat' for _ in range(factor)],
+                initial_command=init_command if init_command != '' else None,
+                only_prepare_script=prepare_scripts
+            )
+            miner.run_multiple(
+                mg_directory=mg_dir,
+                log_directory=f'{main_dir}/logs/{channel}_smeftsim_bench_5',
+                mg_process_directory=f'{main_dir}/signal_samples/{channel}_smeftsim_bench_5',
+                proc_card_file=f'{cards_folder_name}/signal_processes/proc_card_{channel}_smeftsim.dat',
+                param_card_template_file=param_card_template_file,
+                pythia8_card_file=pythia_card if do_pythia else None,
+                sample_benchmarks=['bench_5'],
+                is_background = not args.reweight,
+                run_card_files=[f'{cards_folder_name}/run_card_50k_WHMadminerCuts.dat' for _ in range(factor)],
+                initial_command=init_command if init_command != '' else None,
+                only_prepare_script=prepare_scripts
+            )
+
 
     # launch gen jobs to SLURM # LIP specifics
     if args.launch_SLURM_jobs and args.prepare_scripts:
@@ -132,7 +204,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generates WH signal events WH(->l v b b~), divided by W decay channel and charge.',
                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('--config_file', help='Path to the YAML configuration file', default='config.yaml')
+    parser.add_argument('--config_file', help='Path to the YAML configuration file', default='config_2D.yaml')
 
     parser.add_argument('--do_pythia',help='whether or not to run Pythia after Madgraph',action='store_true',default=False)
 
