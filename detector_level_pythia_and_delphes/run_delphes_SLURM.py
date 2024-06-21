@@ -23,16 +23,15 @@ if __name__ == '__main__':
     #         full_path=f'{event_folder}/{run}/'
     #         subprocess.run(['sbatch',f'--export=SAMPLE_DIR={full_path}','./run_delphes_SLURM.sh'])
     
-    # for sample in background_samples:
-    #     event_folder=f'{args.main_dir}/background_samples/{sample}_background/Events'
-    #     for run in os.listdir(event_folder):
-    #         full_path=f'{event_folder}/{run}/'
-    #         subprocess.run(['sbatch',f'--export=SAMPLE_DIR={full_path}','./run_delphes_SLURM.sh'])
-
-
-    for sample in signal_samples:
-        event_folder=f'{args.main_dir}/signal_samples/{sample}_smeftsim_neg_chwtil/Events'
+    for sample in background_samples:
+        event_folder=f'{args.main_dir}/background_samples/{sample}_background/Events'
         for run in os.listdir(event_folder):
             full_path=f'{event_folder}/{run}/'
             subprocess.run(['sbatch',f'--export=SAMPLE_DIR={full_path}','./run_delphes_SLURM.sh'])
-    
+
+
+    # for sample in signal_samples:
+    #     event_folder=f'{args.main_dir}/signal_samples/{sample}_smeftsim_neg_chwtil/Events'
+    #     for run in os.listdir(event_folder):
+    #         full_path=f'{event_folder}/{run}/'
+    #         subprocess.run(['sbatch',f'--export=SAMPLE_DIR={full_path}','./run_delphes_SLURM.sh'])

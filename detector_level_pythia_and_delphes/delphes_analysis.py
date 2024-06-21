@@ -41,7 +41,7 @@ def get_ql_cos_deltaMinus(leptons=[],photons=[],jets=[],met=None,debug=False):
 
     return parton.get_ql_cos_deltaMinus([],leptons,photons,jets,met,debug)
 
-def process_events(event_path, setup_file_path, is_background_process=False, k_factor=1.0, do_delphes=True, delphes_card='cards/delphes_card_ATLAS.tcl', benchmark='neg_chwtil'):
+def process_events(event_path, setup_file_path, is_background_process=False, k_factor=1.0, do_delphes=True, delphes_card='cards/delphes_card_ATLAS.tcl', benchmark='bench_5'):
     
     reader=DelphesReader(setup_file_path)
     
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--sample_dir',help='folder where the individual sample is', required=True)
 
-    parser.add_argument('--do_delphes',help='run Delphes before analysis code', default=False, action="store_true")
+    parser.add_argument('--do_delphes',help='run Delphes before analysis code', default=True, action="store_true")
 
     parser.add_argument('--delphes_card',help='path of Delphes card', default='cards/delphes_card_ATLAS.tcl')
 
@@ -101,6 +101,6 @@ if __name__ == '__main__':
         logging.getLogger("madminer").setLevel(logging.DEBUG)
 
     if 'background' in args.sample_dir:
-        process_events(f'{args.sample_dir}',f'{args.main_dir}/setup.h5',is_background_process=True,do_delphes=args.do_delphes, delphes_card=args.delphes_card)
+        process_events(f'{args.sample_dir}',f'{args.main_dir}/setup_2D.h5',is_background_process=True,do_delphes=args.do_delphes, delphes_card=args.delphes_card)
     else:
-        process_events(f'{args.sample_dir}',f'{args.main_dir}/setup.h5',is_background_process=False,do_delphes=args.do_delphes, delphes_card=args.delphes_card)
+        process_events(f'{args.sample_dir}',f'{args.main_dir}/setup_2D.h5',is_background_process=False,do_delphes=args.do_delphes, delphes_card=args.delphes_card)
