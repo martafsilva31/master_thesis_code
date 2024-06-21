@@ -12,6 +12,8 @@ import os
 from time import strftime
 import argparse 
 import numpy as np
+import torch
+import torch.profiler
 from matplotlib import pyplot as plt
 from matplotlib import colors as mcolors
 from madminer.plotting.distributions import *
@@ -19,6 +21,7 @@ from madminer.utils.interfaces.hdf5 import load_madminer_settings
 from madminer.sampling import SampleAugmenter
 from madminer import sampling
 from madminer.ml import ParameterizedRatioEstimator, Ensemble
+
 
 # MadMiner output
 logging.basicConfig(
@@ -35,7 +38,8 @@ for key in logging.Logger.manager.loggerDict:
 # Choose the GPU
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 #os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "0")
-os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "0")
+os.environ["CUDA_VISIBLE_DEVICES"] = os.environ.get("GPU", "1")
+
 
 # timestamp for model saving
 timestamp = strftime("%d%m%y")
@@ -80,7 +84,7 @@ def alices_augmentation(config):
     filename=f'train_ratio_{config["sample_name"]}_{i_estimator}',
     sample_only_from_closest_benchmark=True,
     return_individual_n_effective=True,
-    n_processes = 8
+    n_processes = 6
     )
 
   logging.info(f'effective number of samples: {n_effective}')
@@ -94,11 +98,11 @@ def alices_training(config):
   # access to the .h5 file with MadMiner settings
   madminer_settings=load_madminer_settings(f"{config['main_dir']}/{config['sample_name']}.h5", include_nuisance_benchmarks=False)
 
-  if config['alices']['augmentation']['n_samples'] == -1:
+  if config['alices']['training']['n_samples'] == -1:
     nsamples = madminer_settings[6]
 
   else:
-    nsamples = config['alices']['augmentation']['n_samples']
+    nsamples = config['alices']['training']['n_samples']
 
     logging.info(
         f'sample_name: {config["sample_name"]}; '
@@ -136,14 +140,16 @@ def alices_training(config):
   # result is a list of N tuples, where N is the number of estimators,
   # and each tuple contains two arrays, the first with the training losses, the second with the validation losses
   result = ensemble.train_all(method='alices',
-    theta=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/theta0_train_ratio_{config['sample_name']}_{i_estimator}.npy"for i_estimator in range(config['alices']['training']['nestimators'])],
-    x=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/x_train_ratio_{config['sample_name']}_{i_estimator}.npy"for i_estimator in range(config['alices']['training']['nestimators'])],
-    y=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/y_train_ratio_{config['sample_name']}_{i_estimator}.npy" for i_estimator in range(config['alices']['training']['nestimators'])],
-    r_xz=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/r_xz_train_ratio_{config['sample_name']}_{i_estimator}.npy" for i_estimator in range(config['alices']['training']['nestimators'])],
-    t_xz=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/t_xz_train_ratio_{config['sample_name']}_{i_estimator}.npy" for i_estimator in range(config['alices']['training']['nestimators'])],
-    alpha=config["alices"]["training"]["alpha"],
-    memmap=True,verbose="all",n_workers=config["alices"]["training"]["n_workers"],limit_samplesize=nsamples,n_epochs=config["alices"]["training"]["n_epochs"],batch_size=config["alices"]["training"]["batch_size"],scale_inputs=True, scale_parameters=True,
+        theta=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/theta0_train_ratio_{config['sample_name']}_{i_estimator}.npy"for i_estimator in range(config['alices']['training']['nestimators'])],
+        x=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/x_train_ratio_{config['sample_name']}_{i_estimator}.npy"for i_estimator in range(config['alices']['training']['nestimators'])],
+        y=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/y_train_ratio_{config['sample_name']}_{i_estimator}.npy" for i_estimator in range(config['alices']['training']['nestimators'])],
+        r_xz=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/r_xz_train_ratio_{config['sample_name']}_{i_estimator}.npy" for i_estimator in range(config['alices']['training']['nestimators'])],
+        t_xz=[f"{config['main_dir']}/training_samples/alices_{config['alices']['training']['training_samples_name']}/t_xz_train_ratio_{config['sample_name']}_{i_estimator}.npy" for i_estimator in range(config['alices']['training']['nestimators'])],
+        alpha=config["alices"]["training"]["alpha"],
+        memmap=True,verbose="all",n_workers=2,limit_samplesize=nsamples,n_epochs=config["alices"]["training"]["n_epochs"],batch_size=config["alices"]["training"]["batch_size"],scale_inputs=True, scale_parameters=True,
   )    
+                                          
+    
   
   # saving ensemble state dict and training and validation losses
   os.makedirs(f"{config['main_dir']}/models/{config['alices']['training']['training_samples_name']}/{config['alices']['training']['observables']}/{model_name}", exist_ok=True)
@@ -173,7 +179,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Creates augmented (unweighted) training samples for the Approximate likelihood with improved cross-entropy estimator and score method (ALICES). Trains an ensemble of NNs as estimators.',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('--config_file', help='Path to the YAML configuration file', default='config.yaml')
+    parser.add_argument('--config_file', help='Path to the YAML configuration file', default='config_CP_even.yaml')
 
     parser.add_argument('--augment',help="creates training samples;",action='store_true',  default = False)
     
