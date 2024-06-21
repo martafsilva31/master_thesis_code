@@ -144,10 +144,10 @@ def plot_llr_individual(config):
       fig_name = f"{fig_name}_CL.pdf"
       # Set x-axis and y-axis limits using all parameter points
       abs_parameter_points = [abs(point) for point in all_parameter_points_to_plot]
-      plt.axhline(y=1.64,linestyle='-.',linewidth=lw,color='grey',label='95%CL')
+      plt.axhline(y=3.84,linestyle='-.',linewidth=lw,color='grey',label='95%CL')
       plt.axhline(y=1.0,linestyle=':',linewidth=lw,color='grey',label='68%CL')
       plt.xlim(-max(abs_parameter_points), max(abs_parameter_points))
-      plt.ylim(-1, 3.28)
+      plt.ylim(-1, 5)
 
     else:
       fig_name = f"{fig_name}.pdf"
@@ -219,13 +219,13 @@ def plot_llr_ensemble(config):
     rescaled_log_r = llr_kin+llr_rate
     rescaled_log_r = -2.0*(rescaled_log_r[:] - rescaled_log_r[index_best_point])    
 
-    # std = calculate_std(config)
-    # std = np.squeeze(std)
+    std = calculate_std(config)
+    std = np.squeeze(std)
     parameter_grid = np.squeeze(parameter_grid)
  
 
     plt.plot(parameter_grid,rescaled_log_r,lw=1.5, color = color, label = title)    
-    # plt.fill_between(parameter_grid, rescaled_log_r - std, rescaled_log_r + std, color=color, alpha=0.1)
+    plt.fill_between(parameter_grid, rescaled_log_r - std, rescaled_log_r + std, color=color, alpha=0.1)
 
 
 
@@ -233,10 +233,10 @@ def plot_llr_ensemble(config):
       fig_name = f"{fig_name}_CL.pdf"
       # Set x-axis and y-axis limits using all parameter points
       parameter_points_to_plot=[parameter_grid[i] for i,llr_val in enumerate(rescaled_log_r) if llr_val<3.28]
-      plt.axhline(y=1.64,lw = 1.5, linestyle='-.',color='grey',label='95%CL')
+      plt.axhline(y=3.84,lw = 1.5, linestyle='-.',color='grey',label='95%CL')
       plt.axhline(y=1.0,lw=1.5, linestyle=':',color='grey',label='68%CL')
       plt.xlim(-max(abs(parameter_points_to_plot[0]),abs(parameter_points_to_plot[-1])),+max(abs(parameter_points_to_plot[0]),abs(parameter_points_to_plot[-1])))
-      plt.ylim(-1, 3.28)
+      plt.ylim(-1, 5)
 
     else:
       fig_name = f"{fig_name}.pdf"
@@ -321,7 +321,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Plots log likelihood ratio evaluate for all estimators or with and ensemble', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('--config_file', help='Path to the YAML configuration file', default='config.yaml')
+    parser.add_argument('--config_file', help='Path to the YAML configuration file', default='config_CP_even.yaml')
 
     parser.add_argument('--evaluate', help='Evaluates and saves llr for each estimator (individual) or using an ensemble (ensemble)', choices=['individual', 'ensemble'])
 
