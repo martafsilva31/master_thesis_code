@@ -7,7 +7,7 @@ main_dir: /lstore/titan/martafsilva/master_thesis/master_thesis_output/detector_
 plot_dir: /lstore/titan/martafsilva/master_thesis/master_thesis_output/detector_level_pythia_and_delphes/plots # Name of setup file (without the .h5)
 # Name of setup file (without the .h5)
 
-setup_file: setup 
+setup_file: setup
 
 #Name of the cards_folder
 cards_folder_name: cards
@@ -19,7 +19,7 @@ pythia_card: cards/pythia8_card.dat
 mg_dir: /cvmfs/sw.el7/gcc63/madgraph/3.3.1/b01/
 
 # .h5 sample name to augment/train
-sample_name: wh_signalWithBSMAndBackgrounds #choices 
+sample_name: wh_signalWithBSM #choices 
 
 
 alices:
@@ -29,37 +29,56 @@ alices:
     n_samples:  10000000
     n_thetas:  10000
     priors: ['gaussian', 0, 0.4]  # ['gaussian', 0, 0.4] #['flat', -1.2, 1.2] #['gaussian', 0, 0.4] 
-    prior_name: gaussian_prior_0_0.4_10000_thetas #gaussian_prior_0_0.4 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
+    prior_name: alices_gaussian_prior_0_0.4_10000_thetas_10e7_samples_CP_even #gaussian_prior_0_0.4 # flat_prior_m1.2_p1.2 # "gaussian_prior_0_0.4"
 
 
   training:
-    observables:  all_observables #kinematic_only #"all_observables"
+    observables:  kinematic_only #kinematic_only #"all_observables"
     n_hidden: [50,]
     activation:  "relu"
-    training_samples_name: gaussian_prior_0_0.4_10000_thetas #flat_prior_m1.2_p1.2  #"gaussian_prior_0_0.4"
-    alpha: 5
-    n_workers: 8
-    n_samples:  5500000
-    n_epochs: 100
+    training_samples_name: alices_gaussian_prior_0_0.4_10000_thetas_5000000_samples #flat_prior_m1.2_p1.2  #"gaussian_prior_0_0.4"
+    alpha: 5 
+    n_workers: 6
+    n_samples:  10000000
+    n_epochs: 50
     batch_size: 128
-    nestimators: 1 #number of estimators for ALICES method NN ensemble
+    nestimators: 5 #number of estimators for ALICES method NN ensemble
+
+sally:
+
+  augmentation:
+    n_samples:  10000000
+
+
+# Augmentation with alices (good idea for the training and testing to be consistent)
+  training:
+    observables:  "all_observables_remove_redundant_cos"
+    n_hidden: [50,]
+    activation:  "relu"
+    n_workers: 4
+    n_samples:  10000000
+    n_epochs: 50
+    batch_size: 128
+    nestimators: 5 #number of estimators for ALICES method NN ensemble
+
+
 ###### Plotting - limits
 
 limits:
 
   # what to use to extract the limits, given as input to the expected_limits function, choices = ['rate','histo','sally', 'ml']
-  mode: ml
+  mode: sally
 
   # which of the training observable sets to use when extracting limits from a ALICES, ALICE or ml  method
-  observables: kinematic_only
+  observables: all_observables_remove_redundant_cos #all_observables_remove_redundant_cos
 
-  prior: gaussian_prior_0_0.4_1000_thetas # for sally prior name equal to sally
+  prior: alices_gaussian_prior_0_0.4_10000_thetas_5000000_samples
 
   # which of the architecture model (for each of the input variable configurations) to use
-  model: alices_hidden_[50]_relu_alpha_5_epochs_50_bs_128
+  model: alices_hidden_[50]_relu_alpha_5_epochs_100_bs_128 #alices_hidden_[100, 100]_tanh_alpha_0_epochs_50_bs_128
 
   #ALICE, ALICES or SALLY
-  method: alices
+  method: sally
 
   # if the limits are derived in shape-only histograms (i.e. without Poisson likelihood term)
   shape_only: False 
