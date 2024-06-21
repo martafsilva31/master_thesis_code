@@ -61,6 +61,8 @@ if __name__ == "__main__":
     sys.exit(1)
 
   flavor_charge_combinations = list(product(('mu','e'),('p','m')))
+
+  run_list = ['run_06', 'run_07', 'run_08', 'run_09']
    
    # combining individual run samples
   if args.combine_individual:
@@ -69,74 +71,77 @@ if __name__ == "__main__":
       signal_samples = [f'w{charge}h_{flavor}' for (flavor,charge) in flavor_charge_combinations]
       for sample in signal_samples:
         event_folder = f'{args.main_dir}/signal_samples/{sample}_smeftsim_SM/Events'
-        list_samples_to_combine = [f'{event_folder}/{run}/analysed_events.h5' for run in os.listdir(event_folder)]
+        list_samples_to_combine = [f'{event_folder}/{run}/analysed_events.h5' for run in run_list]
+        print(os.listdir(event_folder))
         logging.warning(f'found {len(list_samples_to_combine)} runs for {sample}. weighting each by the inverse of the number of runs')
-        combine_and_shuffle(list_samples_to_combine,f'{args.main_dir}/{sample}_signalOnly.h5',k_factors=1.0/len(list_samples_to_combine))
+        combine_and_shuffle(list_samples_to_combine,f'{args.main_dir}/{sample}_signalOnly_CP_even.h5',k_factors=1.0/len(list_samples_to_combine))
   
     if args.do_backgrounds:
       background_samples=[f't{charge}b_{flavor}' for (flavor,charge) in flavor_charge_combinations]
       background_samples+=[f'tt_{flavor}{charge}jj' for (flavor,charge) in flavor_charge_combinations]
       background_samples+=[f'w{charge}bb_{flavor}' for (flavor,charge) in flavor_charge_combinations]
       
+      run_list_background = ['run_01', 'run_02']
+
       for sample in background_samples:
         event_folder = f'{args.main_dir}/background_samples/{sample}_background/Events'
-        list_samples_to_combine = [f'{event_folder}/{run}/analysed_events.h5' for run in os.listdir(event_folder)]
+        list_samples_to_combine = [f'{event_folder}/{run}/analysed_events.h5' for run in run_list_background]
         logging.warning(f'found {len(list_samples_to_combine)} runs for {sample}. weighting each by the inverse of the number of runs')
-        combine_and_shuffle(list_samples_to_combine,f'{args.main_dir}/background_samples/{sample}_background.h5',k_factors=1.0/len(list_samples_to_combine))
+        combine_and_shuffle(list_samples_to_combine,f'{args.main_dir}/background_samples/{sample}_background_CP_even.h5',k_factors=1.0/len(list_samples_to_combine))
 
       for (flavor,charge) in flavor_charge_combinations:
         combine_and_shuffle([
-          f'{args.main_dir}/background_samples/t{charge}b_{flavor}_background.h5',
-          f'{args.main_dir}/background_samples/tt_{flavor}{charge}jj_background.h5',
-          f'{args.main_dir}/background_samples/w{charge}bb_{flavor}_background.h5'],
-          f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'
+          f'{args.main_dir}/background_samples/t{charge}b_{flavor}_background_CP_even.h5',
+          f'{args.main_dir}/background_samples/tt_{flavor}{charge}jj_background_CP_even.h5',
+          f'{args.main_dir}/background_samples/w{charge}bb_{flavor}_background_CP_even.h5'],
+          f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly_CP_even.h5'
         )
 
         if args.do_signal:
           combine_and_shuffle([
-            f'{args.main_dir}/w{charge}h_{flavor}_signalOnly.h5',
-            f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'],
-            f'{args.main_dir}/w{charge}h_{flavor}_withBackgrounds.h5'
+            f'{args.main_dir}/w{charge}h_{flavor}_signalOnly_CP_even.h5',
+            f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly_CP_even.h5'],
+            f'{args.main_dir}/w{charge}h_{flavor}_withBackgrounds_CP_even.h5'
           )
 
     if args.do_bsm:
-        BSM_benchmarks = ['pos_chwtil','neg_chwtil']
+        BSM_benchmarks = ['morphing_basis_vector_1','morphing_basis_vector_2']
 
         for bench in BSM_benchmarks:
             bsm_samples = [f'w{charge}h_{flavor}' for (flavor,charge) in flavor_charge_combinations]
             for sample in bsm_samples:
                 event_folder = f'{args.main_dir}/signal_samples/{sample}_smeftsim_{bench}/Events'
-                list_samples_to_combine = [f'{event_folder}/{run}/analysed_events.h5' for run in os.listdir(event_folder)]
+                list_samples_to_combine = [f'{event_folder}/{run}/analysed_events.h5' for run in run_list]
                 logging.warning(f'found {len(list_samples_to_combine)} runs for {sample}. weighting each by the inverse of the number of runs')
-                combine_and_shuffle(list_samples_to_combine,f'{args.main_dir}/{sample}_{bench}.h5',k_factors=1.0/len(list_samples_to_combine))
+                combine_and_shuffle(list_samples_to_combine,f'{args.main_dir}/{sample}_{bench}_CP_even.h5',k_factors=1.0/len(list_samples_to_combine))
 
         for (flavor,charge) in flavor_charge_combinations:
 
           combine_and_shuffle([
-            f'{args.main_dir}/w{charge}h_{flavor}_pos_chwtil.h5',
-            f'{args.main_dir}/w{charge}h_{flavor}_neg_chwtil.h5'],
-            f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5'
+            f'{args.main_dir}/w{charge}h_{flavor}_morphing_basis_vector_1_CP_even.h5',
+            f'{args.main_dir}/w{charge}h_{flavor}_morphing_basis_vector_2_CP_even.h5'],
+            f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly_CP_even.h5'
           )
 
           if args.do_signal:
               combine_and_shuffle([
-                  f'{args.main_dir}/w{charge}h_{flavor}_signalOnly.h5',
-                  f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5'],
-                  f'{args.main_dir}/w{charge}h_{flavor}_signalWithBSM.h5'
+                  f'{args.main_dir}/w{charge}h_{flavor}_signalOnly_CP_even.h5',
+                  f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly_CP_even.h5'],
+                  f'{args.main_dir}/w{charge}h_{flavor}_signalWithBSM_CP_even.h5'
               )
           
           if args.do_backgrounds:
               combine_and_shuffle([
-                  f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5',
-                  f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'],
-                  f'{args.main_dir}/w{charge}h_{flavor}_backgroundWithBSM.h5'
+                  f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly_CP_even.h5',
+                  f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly_CP_even.h5'],
+                  f'{args.main_dir}/w{charge}h_{flavor}_backgroundWithBSM_CP_even.h5'
               )
 
               if args.do_signal:
                   combine_and_shuffle([
-                      f'{args.main_dir}/w{charge}h_{flavor}_signalWithBSM.h5',
-                      f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'],
-                      f'{args.main_dir}/w{charge}h_{flavor}_signalwithBSMAndBackgrounds.h5'
+                      f'{args.main_dir}/w{charge}h_{flavor}_signalWithBSM_CP_even.h5',
+                      f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly_CP_even.h5'],
+                      f'{args.main_dir}/w{charge}h_{flavor}_signalwithBSMAndBackgrounds_CP_even.h5'
                   )
 
 
@@ -147,53 +152,53 @@ if __name__ == "__main__":
 
       if args.do_signal:
         combine_and_shuffle([
-          f'{args.main_dir}/w{charge}h_e_signalOnly.h5',
-          f'{args.main_dir}/w{charge}h_mu_signalOnly.h5'],
-          f'{args.main_dir}/w{charge}h_signalOnly.h5'
+          f'{args.main_dir}/w{charge}h_e_signalOnly_CP_even.h5',
+          f'{args.main_dir}/w{charge}h_mu_signalOnly_CP_even.h5'],
+          f'{args.main_dir}/w{charge}h_signalOnly_CP_even.h5'
         )
       if args.do_bsm:
         combine_and_shuffle([
-          f'{args.main_dir}/w{charge}h_e_pos_chwtil.h5',
-          f'{args.main_dir}/w{charge}h_mu_pos_chwtil.h5'],
-          f'{args.main_dir}/w{charge}h_pos_chwtil.h5'
+          f'{args.main_dir}/w{charge}h_e_morphing_basis_vector_1_CP_even.h5',
+          f'{args.main_dir}/w{charge}h_mu_morphing_basis_vector_1_CP_even.h5'],
+          f'{args.main_dir}/w{charge}h_morphing_basis_vector_1_CP_even.h5'
         )
         combine_and_shuffle([
-          f'{args.main_dir}/w{charge}h_e_neg_chwtil.h5',
-          f'{args.main_dir}/w{charge}h_mu_neg_chwtil.h5'],
-          f'{args.main_dir}/w{charge}h_neg_chwtil.h5'
+          f'{args.main_dir}/w{charge}h_e_morphing_basis_vector_2_CP_even.h5',
+          f'{args.main_dir}/w{charge}h_mu_morphing_basis_vector_2_CP_even.h5'],
+          f'{args.main_dir}/w{charge}h_morphing_basis_vector_2_CP_even.h5'
         )
         combine_and_shuffle([
-          f'{args.main_dir}/w{charge}h_pos_chwtil.h5',
-          f'{args.main_dir}/w{charge}h_neg_chwtil.h5'],
-          f'{args.main_dir}/w{charge}h_bsmOnly.h5'
+          f'{args.main_dir}/w{charge}h_morphing_basis_vector_1_CP_even.h5',
+          f'{args.main_dir}/w{charge}h_morphing_basis_vector_2_CP_even.h5'],
+          f'{args.main_dir}/w{charge}h_bsmOnly_CP_even.h5'
         )
 
         if args.do_signal:
           combine_and_shuffle([
-            f'{args.main_dir}/w{charge}h_bsmOnly.h5',
-            f'{args.main_dir}/w{charge}h_signalOnly.h5'],
-            f'{args.main_dir}/w{charge}h_signalWithBSM.h5'
+            f'{args.main_dir}/w{charge}h_bsmOnly_CP_even.h5',
+            f'{args.main_dir}/w{charge}h_signalOnly_CP_even.h5'],
+            f'{args.main_dir}/w{charge}h_signalWithBSM_CP_even.h5'
           )
 
       if args.do_backgrounds:
         combine_and_shuffle([
-          f'{args.main_dir}/w{charge}h_e_backgroundOnly.h5',
-          f'{args.main_dir}/w{charge}h_mu_backgroundOnly.h5'],
-          f'{args.main_dir}/w{charge}h_backgroundOnly.h5'
+          f'{args.main_dir}/w{charge}h_e_backgroundOnly_CP_even.h5',
+          f'{args.main_dir}/w{charge}h_mu_backgroundOnly_CP_even.h5'],
+          f'{args.main_dir}/w{charge}h_backgroundOnly_CP_even.h5'
         )
 
         if args.do_signal:
           combine_and_shuffle([
-            f'{args.main_dir}/w{charge}h_signalOnly.h5',
-            f'{args.main_dir}/w{charge}h_backgroundOnly.h5'],
-            f'{args.main_dir}/w{charge}h_withBackgrounds.h5'
+            f'{args.main_dir}/w{charge}h_signalOnly_CP_even.h5',
+            f'{args.main_dir}/w{charge}h_backgroundOnly_CP_even.h5'],
+            f'{args.main_dir}/w{charge}h_withBackgrounds_CP_even.h5'
           )
 
           if args.do_bsm:
             combine_and_shuffle([
-              f'{args.main_dir}/w{charge}h_signalWithBSM.h5',
-              f'{args.main_dir}/w{charge}h_backgroundOnly.h5'],
-              f'{args.main_dir}/w{charge}h_signalWithBSMAndBackgrounds.h5'
+              f'{args.main_dir}/w{charge}h_signalWithBSM_CP_even.h5',
+              f'{args.main_dir}/w{charge}h_backgroundOnly_CP_even.h5'],
+              f'{args.main_dir}/w{charge}h_signalWithBSMAndBackgrounds_CP_even.h5'
             )
 
   if args.combine_charges:
@@ -201,87 +206,87 @@ if __name__ == "__main__":
 
       if args.do_signal:
         combine_and_shuffle([
-          f'{args.main_dir}/wph_{flavor}_signalOnly.h5',
-          f'{args.main_dir}/wmh_{flavor}_signalOnly.h5'],
-          f'{args.main_dir}/wh_{flavor}_signalOnly.h5'
+          f'{args.main_dir}/wph_{flavor}_signalOnly_CP_even.h5',
+          f'{args.main_dir}/wmh_{flavor}_signalOnly_CP_even.h5'],
+          f'{args.main_dir}/wh_{flavor}_signalOnly_CP_even.h5'
         )
       if args.do_bsm:
         combine_and_shuffle([
-          f'{args.main_dir}/wph_{flavor}_pos_chwtil.h5',
-          f'{args.main_dir}/wmh_{flavor}_pos_chwtil.h5'],
-          f'{args.main_dir}/wh_{flavor}_pos_chwtil.h5'
+          f'{args.main_dir}/wph_{flavor}_morphing_basis_vector_1_CP_even.h5',
+          f'{args.main_dir}/wmh_{flavor}_morphing_basis_vector_1_CP_even.h5'],
+          f'{args.main_dir}/wh_{flavor}_morphing_basis_vector_1_CP_even.h5'
         )
         combine_and_shuffle([
-          f'{args.main_dir}/wph_{flavor}_neg_chwtil.h5',
-          f'{args.main_dir}/wmh_{flavor}_neg_chwtil.h5'],
-          f'{args.main_dir}/wh_{flavor}_neg_chwtil.h5'
+          f'{args.main_dir}/wph_{flavor}_morphing_basis_vector_2_CP_even.h5',
+          f'{args.main_dir}/wmh_{flavor}_morphing_basis_vector_2_CP_even.h5'],
+          f'{args.main_dir}/wh_{flavor}_morphing_basis_vector_2_CP_even.h5'
         )
         combine_and_shuffle([
-          f'{args.main_dir}/wh_{flavor}_pos_chwtil.h5',
-          f'{args.main_dir}/wh_{flavor}_neg_chwtil.h5'],
-          f'{args.main_dir}/wh_{flavor}_bsmOnly.h5'
+          f'{args.main_dir}/wh_{flavor}_morphing_basis_vector_1_CP_even.h5',
+          f'{args.main_dir}/wh_{flavor}_morphing_basis_vector_2_CP_even.h5'],
+          f'{args.main_dir}/wh_{flavor}_bsmOnly_CP_even.h5'
         )
 
         if args.do_signal:
           combine_and_shuffle([
-            f'{args.main_dir}/wh_{flavor}_bsmOnly.h5',
-            f'{args.main_dir}/wh_{flavor}_signalOnly.h5'],
-            f'{args.main_dir}/wh_{flavor}_signalWithBSM.h5'
+            f'{args.main_dir}/wh_{flavor}_bsmOnly_CP_even.h5',
+            f'{args.main_dir}/wh_{flavor}_signalOnly_CP_even.h5'],
+            f'{args.main_dir}/wh_{flavor}_signalWithBSM_CP_even.h5'
           )
 
       if args.do_backgrounds:
         combine_and_shuffle([
-          f'{args.main_dir}/wph_{flavor}_backgroundOnly.h5',
-          f'{args.main_dir}/wmh_{flavor}_backgroundOnly.h5'],
-          f'{args.main_dir}/wh_{flavor}_backgroundOnly.h5'
+          f'{args.main_dir}/wph_{flavor}_backgroundOnly_CP_even.h5',
+          f'{args.main_dir}/wmh_{flavor}_backgroundOnly_CP_even.h5'],
+          f'{args.main_dir}/wh_{flavor}_backgroundOnly_CP_even.h5'
         )
 
         if args.do_signal:
           combine_and_shuffle([
-            f'{args.main_dir}/wh_{flavor}_signalOnly.h5',
-            f'{args.main_dir}/wh_{flavor}_backgroundOnly.h5'],
-            f'{args.main_dir}/wh_{flavor}_withBackgrounds.h5'
+            f'{args.main_dir}/wh_{flavor}_signalOnly_CP_even.h5',
+            f'{args.main_dir}/wh_{flavor}_backgroundOnly_CP_even.h5'],
+            f'{args.main_dir}/wh_{flavor}_withBackgrounds_CP_even.h5'
           )
           
           if args.do_bsm:
                 combine_and_shuffle([
-                f'{args.main_dir}/wh_{flavor}_signalWithBSM.h5',
-                f'{args.main_dir}/wh_{flavor}_backgroundOnly.h5'],
-                f'{args.main_dir}/wh_{flavor}_signalWithBSMAndBackgrounds.h5'
+                f'{args.main_dir}/wh_{flavor}_signalWithBSM_CP_even.h5',
+                f'{args.main_dir}/wh_{flavor}_backgroundOnly_CP_even.h5'],
+                f'{args.main_dir}/wh_{flavor}_signalWithBSMAndBackgrounds_CP_even.h5'
               )
 
   if args.combine_all:
 
     if args.do_signal:
-      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_signalOnly.h5'
+      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_signalOnly_CP_even.h5'
                           for (flavor,charge) in flavor_charge_combinations],
-                          f'{args.main_dir}/wh_signalOnly.h5')
+                          f'{args.main_dir}/wh_signalOnly_CP_even.h5')
       
     if args.do_bsm:
-      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_pos_chwtil.h5'
+      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_morphing_basis_vector_1_CP_even.h5'
                           for (flavor,charge) in flavor_charge_combinations],
-                          f'{args.main_dir}/wh_pos_chwtil.h5')
-      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_neg_chwtil.h5'
+                          f'{args.main_dir}/wh_morphing_basis_vector_1_CP_even.h5')
+      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_morphing_basis_vector_2_CP_even.h5'
                           for (flavor,charge) in flavor_charge_combinations],
-                          f'{args.main_dir}/wh_neg_chwtil.h5')
-      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly.h5'
+                          f'{args.main_dir}/wh_morphing_basis_vector_2_CP_even.h5')
+      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_bsmOnly_CP_even.h5'
                           for (flavor,charge) in flavor_charge_combinations],
-                          f'{args.main_dir}/wh_bsmOnly.h5')
+                          f'{args.main_dir}/wh_bsmOnly_CP_even.h5')
       
       if args.do_signal:
 
-        combine_and_shuffle([f'{args.main_dir}/wh_bsmOnly.h5',f'{args.main_dir}/wh_signalOnly.h5'],
-                    f'{args.main_dir}/wh_signalWithBSM.h5')
+        combine_and_shuffle([f'{args.main_dir}/wh_bsmOnly_CP_even.h5',f'{args.main_dir}/wh_signalOnly_CP_even.h5'],
+                    f'{args.main_dir}/wh_signalWithBSM_CP_even.h5')
     
     if args.do_backgrounds:
-      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly.h5'
+      combine_and_shuffle([f'{args.main_dir}/w{charge}h_{flavor}_backgroundOnly_CP_even.h5'
                         for (flavor,charge) in flavor_charge_combinations],
-                      f'{args.main_dir}/wh_backgroundOnly.h5')
+                      f'{args.main_dir}/wh_backgroundOnly_CP_even.h5')
       
       if args.do_signal:
-        combine_and_shuffle([f'{args.main_dir}/wh_signalOnly.h5',f'{args.main_dir}/wh_backgroundOnly.h5'],
-                    f'{args.main_dir}/wh_withBackgrounds.h5')
+        combine_and_shuffle([f'{args.main_dir}/wh_signalOnly_CP_even.h5',f'{args.main_dir}/wh_backgroundOnly_CP_even.h5'],
+                    f'{args.main_dir}/wh_withBackgrounds_CP_even.h5')
         
         if args.do_bsm:
-            combine_and_shuffle([f'{args.main_dir}/wh_signalWithBSM.h5',f'{args.main_dir}/wh_backgroundOnly.h5'],
-                        f'{args.main_dir}/wh_signalWithBSMAndBackgrounds.h5')
+            combine_and_shuffle([f'{args.main_dir}/wh_signalWithBSM_CP_even.h5',f'{args.main_dir}/wh_backgroundOnly_CP_even.h5'],
+                        f'{args.main_dir}/wh_signalWithBSMAndBackgrounds_CP_even.h5')
